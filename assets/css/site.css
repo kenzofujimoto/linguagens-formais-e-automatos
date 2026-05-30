@@ -1,0 +1,832 @@
+/* ===================================================================
+   Linguagens Formais e Autômatos – site.css
+   Dark-themed · Glassmorphism · Cyan/Teal accent
+   =================================================================== */
+
+/* ── Design Tokens ────────────────────────────────────────────────── */
+:root{
+  --bg:#0b0d12;
+  --bg-soft:#111722;
+  --panel:#151b26;
+  --panel-2:#1c2533;
+  --text:#eef4ff;
+  --muted:#a8b4c7;
+  --line:#344256;
+  --accent:#22c8d8;          /* cyan/teal – cor primária */
+  --accent-dark:#179ba8;
+  --accent-glow:rgba(34,200,216,.25);
+  --blue:#4f8cff;
+  --orange:#f5a524;
+  --red:#ef4b4b;
+  --purple:#a77cff;
+  --green:#1db77f;
+  --shadow:0 18px 48px rgba(0,0,0,.28);
+}
+
+/* ── Reset & Base ─────────────────────────────────────────────────── */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:linear-gradient(180deg,#0b0d12 0%,#0d1520 44%,#0b0d12 100%);
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  line-height:1.55;
+}
+a{color:inherit;text-decoration:none}
+p{color:#d3dbea;margin:8px 0}
+h1,h2,h3{margin:0;color:#fff;letter-spacing:0}
+h1{font-size:clamp(2.2rem,4.6vw,4.9rem);line-height:1.02}
+h2{font-size:clamp(1.6rem,2.6vw,2.4rem);line-height:1.12}
+h3{font-size:1.16rem;line-height:1.25}
+
+/* ── Utility ──────────────────────────────────────────────────────── */
+.sr-only{
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
+}
+
+/* ── Topbar ───────────────────────────────────────────────────────── */
+.topbar{
+  position:sticky;
+  z-index:20;
+  top:0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding:14px clamp(18px,4vw,48px);
+  background:rgba(11,13,18,.84);
+  border-bottom:1px solid rgba(255,255,255,.07);
+  backdrop-filter:blur(14px);
+}
+.brand{font-weight:850;font-size:1.05rem}
+
+/* ── Navigation ───────────────────────────────────────────────────── */
+.main-nav{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.main-nav a,.button,.tab-list button,.step-controls button{
+  border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.045);
+  color:#f8fbff;
+  border-radius:8px;
+  padding:8px 12px;
+  font:700 .9rem/1 Inter,system-ui,sans-serif;
+  cursor:pointer;
+}
+.main-nav a:hover,.main-nav a.active,.button.primary,.tab-list button.active,.step-controls button:hover{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#071111;
+}
+
+/* ── Main container ───────────────────────────────────────────────── */
+main{width:min(1180px,calc(100% - 36px));margin:0 auto}
+
+/* ── Hero ─────────────────────────────────────────────────────────── */
+.hero{
+  min-height:calc(100vh - 72px);
+  display:grid;
+  grid-template-columns:minmax(0,1.05fr) minmax(320px,.78fr);
+  gap:34px;
+  align-items:center;
+  padding:56px 0;
+}
+.hero p{max-width:760px;font-size:1.08rem;color:#c7d3e6}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.button{display:inline-flex;align-items:center;justify-content:center;min-height:40px}
+
+/* ── Hero Panel (automaton preview) ───────────────────────────────── */
+.hero-panel{
+  border:1px solid rgba(255,255,255,.09);
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.025)),var(--panel);
+  border-radius:14px;
+  padding:18px;
+  box-shadow:var(--shadow);
+}
+
+/* ── Automaton preview (hero) ─────────────────────────────────────── */
+.automaton-preview{
+  position:relative;
+  aspect-ratio:3/2;
+  border-radius:10px;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 22% 24%,rgba(34,200,216,.22),transparent 28%),
+    radial-gradient(circle at 72% 70%,rgba(79,140,255,.18),transparent 28%),
+    #0f1520;
+}
+.automaton-preview svg{position:absolute;inset:0;width:100%;height:100%}
+
+/* State circles inside preview */
+.automaton-preview .state{
+  position:absolute;
+  left:var(--x);
+  top:var(--y);
+  z-index:2;
+  display:grid;
+  place-items:center;
+  width:38px;
+  height:38px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:#122030;
+  border:2px solid #b7c7e6;
+  font-weight:850;
+  font-size:.82rem;
+  color:var(--text);
+  transition:border-color .25s ease,box-shadow .25s ease;
+}
+.automaton-preview .state.accepting{
+  box-shadow:0 0 0 3px #122030, 0 0 0 5px #b7c7e6;
+}
+
+/* ── Mini Stats ───────────────────────────────────────────────────── */
+.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.stat{border:1px solid rgba(255,255,255,.08);background:var(--panel-2);border-radius:8px;padding:12px}
+.stat strong{display:block;font-size:1.55rem}
+.stat span{font-size:.82rem;color:var(--muted)}
+
+/* ── Sections ─────────────────────────────────────────────────────── */
+.section-shell{padding:22px 0 48px}
+.section-shell.compact{padding-top:0}
+.section-heading{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:18px}
+.section-heading p{max-width:620px;color:var(--muted)}
+.section-heading.tight{align-items:start;display:block}
+
+/* ── Cards Grids ──────────────────────────────────────────────────── */
+.topic-grid,.animation-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+
+.topic-card,.animation-card,.content-card,.exercise-card{
+  border:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015)),var(--panel);
+  border-radius:10px;
+  padding:16px;
+  box-shadow:0 12px 32px rgba(0,0,0,.18);
+}
+
+.topic-card small,.source,.tag{color:#b9c8df;font-size:.82rem}
+.source{display:inline-block;max-width:100%;overflow-wrap:anywhere;word-break:break-word}
+.tag{
+  display:inline-flex;
+  align-items:center;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:7px;
+  padding:2px 7px;
+  background:rgba(255,255,255,.045);
+  margin:2px 4px 2px 0;
+}
+
+/* ── App Layout (teoria / exercícios) ─────────────────────────────── */
+.app-layout{
+  display:grid;
+  grid-template-columns:300px minmax(0,1fr);
+  gap:22px;
+  align-items:start;
+  width:min(1480px,calc(100% - 28px));
+  padding:24px 0 54px;
+  transition:grid-template-columns .2s ease;
+}
+.app-layout.rail-collapsed{
+  grid-template-columns:58px minmax(0,1fr);
+}
+
+/* ── Rail / Sidebar ───────────────────────────────────────────────── */
+.rail{
+  position:sticky;
+  top:72px;
+  max-height:calc(100vh - 92px);
+  overflow:auto;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(18,24,34,.9);
+  border-radius:12px;
+  padding:16px;
+  transition:padding .2s ease,background .2s ease;
+}
+.rail h1{font-size:1.6rem}
+.rail p{font-size:.92rem;color:var(--muted)}
+.rail-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+
+.rail-toggle{
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+  width:34px;
+  height:34px;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:8px;
+  background:rgba(255,255,255,.055);
+  cursor:pointer;
+}
+.rail-toggle:hover{border-color:var(--accent);background:rgba(34,200,216,.16)}
+
+.rail-toggle-lines,.rail-toggle-lines::before,.rail-toggle-lines::after{
+  display:block;
+  width:16px;
+  height:2px;
+  border-radius:3px;
+  background:#e9f3ff;
+}
+.rail-toggle-lines{position:relative}
+.rail-toggle-lines::before,.rail-toggle-lines::after{content:"";position:absolute;left:0}
+.rail-toggle-lines::before{top:-6px}
+.rail-toggle-lines::after{top:6px}
+
+.rail-content{transition:opacity .15s ease,transform .15s ease}
+.rail.is-collapsed{padding:12px 8px;overflow:hidden}
+.rail.is-collapsed .rail-head{justify-content:center}
+.rail.is-collapsed .rail-title,.rail.is-collapsed .rail-content{
+  width:0;height:0;opacity:0;overflow:hidden;pointer-events:none;transform:translateX(-8px);
+}
+
+/* ── Tab list ─────────────────────────────────────────────────────── */
+.tab-list{display:flex;flex-direction:column;gap:7px;margin-top:14px}
+.tab-list button{text-align:left;line-height:1.2;color:#d8e3f5}
+.tab-list button.active{color:#071111}
+
+/* ── Content Stage ────────────────────────────────────────────────── */
+.content-stage{min-width:0}
+.content-card{margin-bottom:16px}
+.content-card h2{margin-bottom:4px}
+.content-card h3{margin-top:18px}
+.content-card ul,.content-card ol{color:#d7dfec;padding-left:20px}
+.content-card li{margin:6px 0}
+
+/* ── Formula / Code ───────────────────────────────────────────────── */
+.formula{
+  overflow:auto;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:8px;
+  background:#090e18;
+  color:#dff6ff;
+  padding:10px 12px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+
+/* ── Visual Cards ─────────────────────────────────────────────────── */
+.visual-grid{display:grid;gap:14px;margin-top:16px}
+.visual-card{border:1px solid rgba(255,255,255,.08);border-radius:10px;background:#101620;padding:12px}
+
+/* ── Graph Box (legacy compat) ────────────────────────────────────── */
+.graph-box{
+  min-height:320px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:8px;
+  background:#0b1220;
+  overflow:hidden;
+}
+.graph-box svg{
+  display:block;
+  width:100%;
+  max-width:100%;
+  height:auto;
+  max-height:min(62vh,540px);
+  min-height:260px;
+  aspect-ratio:var(--graph-ratio,720 / 380);
+}
+
+/* ── Step Controls ────────────────────────────────────────────────── */
+.step-controls{display:flex;align-items:center;gap:8px;margin-top:10px}
+.step-controls span{flex:1;text-align:center;color:var(--muted);font-size:.9rem}
+.step-text{margin-top:10px;border-left:3px solid var(--orange);padding-left:10px;color:#dce7f7}
+
+/* ── Exercises ────────────────────────────────────────────────────── */
+.exercise-list{display:grid;gap:16px}
+.exercise-card{padding:0;overflow:hidden}
+.exercise-head{display:flex;justify-content:space-between;gap:12px;align-items:start;padding:16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.exercise-body{display:block;padding:16px}
+.solution-toggle{margin-top:16px}
+.prompt{white-space:pre-line;color:#e1e8f5}
+.question-list{margin:10px 0 0;padding-left:20px;color:#dce5f4}
+.solution{border-top:1px solid rgba(255,255,255,.08);padding:16px;background:rgba(255,255,255,.025)}
+.solution ol{padding-left:20px;color:#dce5f4}
+.solution-graph{margin-top:14px}
+.solution-graph h4{margin:0 0 10px;color:#fff;font-size:1rem}
+.prompt-graph-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:14px}
+.prompt-graph-grid .solution-graph{margin-top:0}
+.prompt-graph-grid .graph-box{min-height:260px}
+
+/* ── Table / Matrix ───────────────────────────────────────────────── */
+.matrix-wrap{margin-top:16px;overflow:auto}
+.matrix-wrap h3{margin-bottom:8px}
+.table-scroll{margin-top:16px;overflow:auto}
+.table-scroll h4{margin:0 0 8px;color:#fff;font-size:1rem}
+
+/* ── Footer ───────────────────────────────────────────────────────── */
+.footer{width:min(1180px,calc(100% - 36px));margin:0 auto;padding:28px 0 42px;color:var(--muted)}
+
+/* ── SVG Typography ───────────────────────────────────────────────── */
+.svg-label{font-family:Inter,Arial,sans-serif;font-size:12px;font-weight:800;fill:#eaf2ff}
+.svg-muted{fill:#b6c3d8}
+
+
+/* ===================================================================
+   AUTOMATA-SPECIFIC STYLES
+   =================================================================== */
+
+/* ── Automaton Box ────────────────────────────────────────────────── */
+.automaton-box{
+  position:relative;
+  min-height:320px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(34,200,216,.12);
+  border-radius:10px;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 50%,rgba(34,200,216,.06),transparent),
+    #0b1220;
+  overflow:hidden;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+}
+.automaton-box svg{
+  display:block;
+  width:100%;
+  max-width:100%;
+  height:auto;
+  max-height:min(62vh,540px);
+  min-height:260px;
+  aspect-ratio:var(--automaton-ratio,720 / 380);
+}
+
+/* ── SVG Automaton States ─────────────────────────────────────────── */
+.automaton-box .svg-state{
+  fill:#132030;
+  stroke:#6b849e;
+  stroke-width:2;
+  transition:fill .22s ease,stroke .22s ease,filter .22s ease;
+}
+.automaton-box .svg-state-label{
+  font-family:Inter,Arial,sans-serif;
+  font-size:13px;
+  font-weight:800;
+  fill:#eaf2ff;
+  text-anchor:middle;
+  dominant-baseline:central;
+  pointer-events:none;
+}
+
+/* ── SVG Transitions ──────────────────────────────────────────────── */
+.automaton-box .svg-transition{
+  fill:none;
+  stroke:#5e718d;
+  stroke-width:2;
+  stroke-linecap:round;
+  transition:stroke .22s ease,stroke-width .22s ease;
+}
+.automaton-box .svg-transition-label{
+  font-family:Inter,Arial,sans-serif;
+  font-size:11px;
+  font-weight:700;
+  fill:#a8bdd5;
+}
+.automaton-box .svg-arrowhead{
+  fill:#5e718d;
+  transition:fill .22s ease;
+}
+/* Initial state arrow */
+.automaton-box .svg-initial-arrow{
+  fill:none;
+  stroke:var(--accent);
+  stroke-width:2;
+  stroke-linecap:round;
+}
+.automaton-box .svg-initial-arrowhead{
+  fill:var(--accent);
+}
+
+/* ── State: Active (animação de simulação) ────────────────────────── */
+.state-active .svg-state,
+.svg-state.state-active{
+  fill:rgba(34,200,216,.2);
+  stroke:var(--accent);
+  stroke-width:2.5;
+  filter:drop-shadow(0 0 10px rgba(34,200,216,.45));
+}
+.state-active .svg-state-label,
+.svg-state.state-active + .svg-state-label{
+  fill:#fff;
+}
+
+/* ── State: Accepting (estado de aceitação – duplo círculo) ───────── */
+.state-accepting .svg-state,
+.svg-state.state-accepting{
+  stroke:#22c8d8;
+  stroke-width:2;
+}
+/* segundo círculo interno para duplo-círculo */
+.state-accepting .svg-state-inner,
+.svg-state-inner.state-accepting{
+  fill:none;
+  stroke:#22c8d8;
+  stroke-width:2;
+}
+
+/* Accepting + Active */
+.state-accepting.state-active .svg-state{
+  fill:rgba(34,200,216,.25);
+  filter:drop-shadow(0 0 14px rgba(34,200,216,.55));
+}
+
+/* ── Transition: Active (animação de simulação) ───────────────────── */
+.transition-active .svg-transition,
+.svg-transition.transition-active{
+  stroke:var(--accent);
+  stroke-width:3;
+  filter:drop-shadow(0 0 6px rgba(34,200,216,.5));
+}
+.transition-active .svg-arrowhead,
+.svg-arrowhead.transition-active{
+  fill:var(--accent);
+}
+.transition-active .svg-transition-label,
+.svg-transition-label.transition-active{
+  fill:#fff;
+  font-weight:800;
+}
+
+/* ── Turing Machine – Tape Display ────────────────────────────────── */
+.tape-display{
+  display:flex;
+  align-items:center;
+  gap:0;
+  margin:16px auto;
+  padding:6px 12px;
+  overflow-x:auto;
+  border:1px solid rgba(34,200,216,.15);
+  border-radius:10px;
+  background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01)),#0d1420;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.25);
+  scrollbar-width:thin;
+  scrollbar-color:rgba(34,200,216,.25) transparent;
+}
+.tape-cell{
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+  width:42px;
+  height:46px;
+  border:1px solid rgba(255,255,255,.1);
+  border-right:none;
+  background:rgba(255,255,255,.025);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:1.05rem;
+  font-weight:700;
+  color:var(--text);
+  transition:background .2s ease,border-color .2s ease,color .2s ease;
+}
+.tape-cell:first-child{border-radius:6px 0 0 6px}
+.tape-cell:last-child{border-radius:0 6px 6px 0;border-right:1px solid rgba(255,255,255,.1)}
+.tape-cell.blank{color:var(--muted);opacity:.45}
+.tape-cell.read{color:rgba(168,180,199,.4);opacity:.6;background:rgba(0,0,0,.15)}
+
+
+/* Cabeçote (head) – célula atualmente lida */
+.tape-cell.head{
+  background:rgba(34,200,216,.18);
+  border-color:var(--accent);
+  color:#fff;
+  box-shadow:0 0 12px rgba(34,200,216,.3);
+  position:relative;
+}
+.tape-cell.head::after{
+  content:"▼";
+  position:absolute;
+  top:-18px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:.7rem;
+  color:var(--accent);
+  text-shadow:0 0 6px rgba(34,200,216,.5);
+}
+
+/* ── Pushdown Automaton – Stack Display ───────────────────────────── */
+.stack-display{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:0;
+  min-width:68px;
+  max-width:90px;
+  margin:0 auto;
+  border:1px solid rgba(167,124,255,.2);
+  border-radius:8px;
+  background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01)),#0d1420;
+  overflow:hidden;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.25);
+}
+.stack-label{
+  width:100%;
+  padding:5px 0;
+  text-align:center;
+  font-size:.72rem;
+  font-weight:700;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--muted);
+  background:rgba(255,255,255,.04);
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.stack-cell{
+  width:100%;
+  display:grid;
+  place-items:center;
+  padding:7px 6px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:1rem;
+  font-weight:700;
+  color:var(--text);
+  transition:background .2s ease;
+}
+.stack-cell:last-child{border-bottom:none}
+.stack-cell.top{
+  background:rgba(167,124,255,.15);
+  color:#d5c4ff;
+  box-shadow:inset 0 0 8px rgba(167,124,255,.12);
+}
+.stack-cell.bottom-marker{
+  color:var(--muted);
+  opacity:.5;
+  font-size:.9rem;
+}
+
+/* ── Derivation Tree ──────────────────────────────────────────────── */
+.derivation-tree{
+  position:relative;
+  min-height:280px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(245,165,36,.12);
+  border-radius:10px;
+  background:
+    radial-gradient(ellipse 50% 45% at 50% 30%,rgba(245,165,36,.05),transparent),
+    #0b1220;
+  overflow:hidden;
+  padding:16px;
+}
+.derivation-tree svg{
+  display:block;
+  width:100%;
+  height:auto;
+  max-height:min(55vh,480px);
+  min-height:220px;
+}
+/* Tree node */
+.derivation-tree .tree-node{
+  fill:#132030;
+  stroke:#7a8ea6;
+  stroke-width:1.5;
+  transition:fill .2s ease,stroke .2s ease;
+}
+.derivation-tree .tree-node.nonterminal{
+  fill:rgba(245,165,36,.1);
+  stroke:var(--orange);
+}
+.derivation-tree .tree-node.terminal{
+  fill:rgba(34,200,216,.1);
+  stroke:var(--accent);
+  rx:4;
+  ry:4;
+}
+.derivation-tree .tree-edge{
+  fill:none;
+  stroke:#5e718d;
+  stroke-width:1.5;
+}
+.derivation-tree .tree-label{
+  font-family:Inter,Arial,sans-serif;
+  font-size:12px;
+  font-weight:700;
+  fill:#eaf2ff;
+  text-anchor:middle;
+  dominant-baseline:central;
+}
+
+/* ── Grammar Display ──────────────────────────────────────────────── */
+.grammar-display{
+  border:1px solid rgba(79,140,255,.15);
+  border-radius:10px;
+  background:linear-gradient(180deg,rgba(79,140,255,.04),transparent),#0c111c;
+  padding:16px 20px;
+  margin:12px 0;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:.95rem;
+  line-height:1.75;
+  color:#d5e2f5;
+  overflow-x:auto;
+}
+.grammar-display .production{
+  display:flex;
+  align-items:baseline;
+  gap:6px;
+  padding:2px 0;
+}
+.grammar-display .nonterminal{
+  color:var(--orange);
+  font-weight:800;
+}
+.grammar-display .terminal{
+  color:var(--accent);
+  font-weight:700;
+}
+.grammar-display .arrow{
+  color:var(--muted);
+  margin:0 4px;
+  user-select:none;
+}
+.grammar-display .pipe{
+  color:var(--muted);
+  margin:0 6px;
+}
+.grammar-display .epsilon{
+  color:var(--purple);
+  font-style:italic;
+}
+
+/* ── Regex Display ────────────────────────────────────────────────── */
+.regex-display{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  border:1px solid rgba(34,200,216,.18);
+  border-radius:8px;
+  background:rgba(34,200,216,.06);
+  padding:8px 16px;
+  margin:8px 0;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:1.05rem;
+  font-weight:600;
+  color:var(--text);
+  letter-spacing:.02em;
+  word-break:break-all;
+}
+.regex-display .op{
+  color:var(--accent);
+  font-weight:800;
+}
+.regex-display .group{
+  color:var(--orange);
+}
+.regex-display .char-class{
+  color:var(--purple);
+}
+.regex-display .quantifier{
+  color:var(--red);
+  font-weight:800;
+}
+
+/* ── Simulation Controls Bar ──────────────────────────────────────── */
+.sim-controls{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:12px;
+  padding:8px 12px;
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:8px;
+  background:rgba(255,255,255,.025);
+}
+.sim-controls .sim-input{
+  flex:1;
+  min-width:120px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:6px;
+  background:rgba(0,0,0,.3);
+  color:var(--text);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:.92rem;
+  padding:6px 10px;
+  outline:none;
+  transition:border-color .2s ease;
+}
+.sim-controls .sim-input:focus{border-color:var(--accent)}
+.sim-controls .sim-input::placeholder{color:rgba(168,180,199,.45)}
+
+.sim-status{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  font-size:.85rem;
+  font-weight:700;
+  padding:4px 10px;
+  border-radius:6px;
+}
+.sim-status.accepted{color:#0c3c2e;background:rgba(29,183,127,.85)}
+.sim-status.rejected{color:#3c0c0c;background:rgba(239,75,75,.85)}
+.sim-status.running{color:#0c2c3c;background:rgba(34,200,216,.85)}
+
+/* ── Transition Table ─────────────────────────────────────────────── */
+.transition-table{
+  width:100%;
+  border-collapse:collapse;
+  margin:12px 0;
+  font-size:.9rem;
+}
+.transition-table th,.transition-table td{
+  border:1px solid rgba(255,255,255,.08);
+  padding:8px 12px;
+  text-align:center;
+}
+.transition-table th{
+  background:rgba(255,255,255,.05);
+  color:var(--text);
+  font-weight:700;
+  font-size:.82rem;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.transition-table td{
+  background:rgba(255,255,255,.015);
+  color:#d0dcef;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+.transition-table tr:hover td{background:rgba(34,200,216,.06)}
+.transition-table td.active-cell{
+  background:rgba(34,200,216,.15);
+  color:#fff;
+  box-shadow:inset 0 0 0 1px var(--accent);
+}
+
+/* ── Glassmorphism Accent Panel ───────────────────────────────────── */
+.glass-panel{
+  border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.04);
+  backdrop-filter:blur(16px);
+  border-radius:12px;
+  padding:20px;
+  box-shadow:0 8px 32px rgba(0,0,0,.2);
+}
+
+/* ── Pulse animation (for active states) ──────────────────────────── */
+@keyframes pulse-cyan{
+  0%,100%{filter:drop-shadow(0 0 6px rgba(34,200,216,.3))}
+  50%{filter:drop-shadow(0 0 16px rgba(34,200,216,.6))}
+}
+.state-active .svg-state,
+.svg-state.state-active{
+  animation:pulse-cyan 1.6s ease-in-out infinite;
+}
+
+@keyframes tape-slide{
+  from{transform:translateX(42px);opacity:0}
+  to{transform:translateX(0);opacity:1}
+}
+.tape-cell.entering{animation:tape-slide .25s ease-out}
+
+@keyframes stack-push{
+  from{transform:translateY(-20px);opacity:0}
+  to{transform:translateY(0);opacity:1}
+}
+.stack-cell.pushing{animation:stack-push .25s ease-out}
+
+@keyframes stack-pop{
+  from{transform:translateY(0);opacity:1}
+  to{transform:translateY(-20px);opacity:0}
+}
+.stack-cell.popping{animation:stack-pop .25s ease-in forwards}
+
+/* ── Responsive ───────────────────────────────────────────────────── */
+@media (max-width:920px){
+  .hero,.app-layout,.exercise-body{grid-template-columns:1fr}
+  .hero{min-height:auto}
+  .rail{position:relative;top:0;max-height:none}
+  .app-layout.rail-collapsed{grid-template-columns:1fr}
+  .rail.is-collapsed{padding:10px 12px}
+  .rail.is-collapsed .rail-head{justify-content:space-between}
+  .rail.is-collapsed .rail-title{
+    width:auto;height:auto;opacity:1;transform:none;
+  }
+  .topic-grid,.animation-grid,.mini-stats{grid-template-columns:1fr}
+  .section-heading{display:block}
+  .topbar{position:relative;align-items:flex-start}
+  .visual-card,.content-card,.graph-box,.automaton-box{min-width:0}
+  .graph-box svg,.automaton-box svg{min-width:0;min-height:260px}
+  .tape-display{margin:12px 0}
+  .stack-display{max-width:100%;flex-direction:row;flex-wrap:wrap}
+  .sim-controls{flex-wrap:wrap}
+}
+
+/* ── Motion preferences ───────────────────────────────────────────── */
+@media (prefers-reduced-motion:no-preference){
+  .topic-card,.animation-card,.content-card,.exercise-card{
+    transition:transform .18s ease,border-color .18s ease;
+  }
+  .topic-card:hover,.animation-card:hover,.exercise-card:hover{
+    transform:translateY(-2px);
+    border-color:rgba(34,200,216,.28);
+  }
+}
+@media (prefers-reduced-motion:reduce){
+  .state-active .svg-state,
+  .svg-state.state-active{animation:none}
+  .tape-cell.entering{animation:none}
+  .stack-cell.pushing,.stack-cell.popping{animation:none}
+}
