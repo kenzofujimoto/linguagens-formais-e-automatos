@@ -34,6 +34,7 @@ const expectedSections = [
   "mt-decide",
   "representacao",
   "duas-fitas",
+  "atividade-26-palindromos",
   "checklist",
 ];
 
@@ -45,6 +46,7 @@ const expectedAnimations = [
   ["nao-llc", "pumpingCfl"],
   ["mt", "tmEnds0"],
   ["duas-fitas", "twoTapeCopy"],
+  ["atividade-26-palindromos", "twoTapePalindrome"],
 ];
 
 assert.ok(data.p2Guide, "LFA_SITE_DATA.p2Guide should exist");
@@ -85,10 +87,12 @@ assert.match(siteJs, /function renderP2PdaAnBn\(/);
 assert.match(siteJs, /function renderP2PumpingCfl\(/);
 assert.match(siteJs, /function renderP2TmEnds0\(/);
 assert.match(siteJs, /function renderP2TwoTapeCopy\(/);
+assert.match(siteJs, /function renderP2TwoTapePalindrome\(/);
 assert.match(siteJs, /data-p2-input="dfa"/);
 assert.match(siteJs, /data-p2-input="pda"/);
 assert.match(siteJs, /data-p2-input="tm"/);
 assert.match(siteJs, /data-p2-input="twoTape"/);
+assert.match(siteJs, /data-p2-input="twoTapePalindrome"/);
 
 const p2Html = fs.readFileSync(p2PagePath, "utf8");
 assert.match(p2Html, /data-view="p2"/);
