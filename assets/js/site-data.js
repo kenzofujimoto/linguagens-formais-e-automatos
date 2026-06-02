@@ -2023,6 +2023,254 @@ window.LFA_SITE_DATA = {
           activeTransitions: ["e1"]
         }
       ]
+    },
+    p2CfgDerivation: {
+      title: "P2: derivação da palavra abba",
+      summary: "Derivação passo a passo de abba pela gramática S -> aSa | bSb | a | b | ε.",
+      steps: [
+        {
+          title: "Símbolo inicial",
+          text: "Começamos pelo símbolo inicial <strong>S</strong>. Ainda não há palavra final, porque S é variável.",
+          grammar: { productions: [{ left: "Forma", right: ["S"] }] }
+        },
+        {
+          title: "Borda externa",
+          text: "Aplicamos <strong>S -> aSa</strong>. A derivação cria a camada simétrica externa: a _ a.",
+          grammar: { productions: [{ left: "Forma", right: ["aSa"] }] }
+        },
+        {
+          title: "Camada interna",
+          text: "Aplicamos <strong>S -> bSb</strong> no S central. Agora a forma parcial é abSba.",
+          grammar: { productions: [{ left: "Forma", right: ["abSba"] }] }
+        },
+        {
+          title: "String vazia",
+          text: "Aplicamos <strong>S -> ε</strong>. O símbolo variável desaparece e resta apenas terminal.",
+          grammar: { productions: [{ left: "Forma", right: ["abεba"] }] }
+        },
+        {
+          title: "Resultado",
+          text: "A palavra final é <strong>abba</strong>, um palíndromo sobre {a,b}.",
+          grammar: { productions: [{ left: "Forma", right: ["abba"] }] }
+        }
+      ]
+    },
+    p2AmbiguousTree: {
+      title: "P2: duas árvores para 4*3+1",
+      summary: "Mostra a ambiguidade de uma gramática de expressões ao alternar a operação principal da raiz.",
+      steps: [
+        {
+          title: "Leitura 1: (4*3)+1",
+          text: "A raiz separa a expressão pela soma. Primeiro a subárvore esquerda monta <strong>4*3</strong>; depois soma <strong>1</strong>.",
+          tree: {
+            nodes: [
+              { id: "s0", label: "S", x: 360, y: 42, type: "nonterminal" },
+              { id: "s1", label: "S", x: 230, y: 118, type: "nonterminal" },
+              { id: "plus", label: "+", x: 360, y: 118, type: "terminal" },
+              { id: "s2", label: "S", x: 500, y: 118, type: "nonterminal" },
+              { id: "n1", label: "N", x: 150, y: 230, type: "nonterminal" },
+              { id: "mul", label: "*", x: 230, y: 230, type: "terminal" },
+              { id: "n2", label: "N", x: 310, y: 230, type: "nonterminal" },
+              { id: "n3", label: "N", x: 500, y: 230, type: "nonterminal" },
+              { id: "l4", label: "4", x: 150, y: 295, type: "terminal" },
+              { id: "l3", label: "3", x: 310, y: 295, type: "terminal" },
+              { id: "l1", label: "1", x: 500, y: 295, type: "terminal" }
+            ],
+            edges: [
+              { from: "s0", to: "s1" }, { from: "s0", to: "plus" }, { from: "s0", to: "s2" },
+              { from: "s1", to: "n1" }, { from: "s1", to: "mul" }, { from: "s1", to: "n2" },
+              { from: "n1", to: "l4" }, { from: "n2", to: "l3" }, { from: "s2", to: "n3" }, { from: "n3", to: "l1" }
+            ]
+          }
+        },
+        {
+          title: "Leitura 2: 4*(3+1)",
+          text: "A raiz separa a expressão pela multiplicação. A subárvore direita monta <strong>3+1</strong>, gerando outra estrutura para a mesma string.",
+          tree: {
+            nodes: [
+              { id: "s0", label: "S", x: 360, y: 42, type: "nonterminal" },
+              { id: "s1", label: "S", x: 230, y: 118, type: "nonterminal" },
+              { id: "mul", label: "*", x: 360, y: 118, type: "terminal" },
+              { id: "s2", label: "S", x: 500, y: 118, type: "nonterminal" },
+              { id: "n1", label: "N", x: 230, y: 230, type: "nonterminal" },
+              { id: "n2", label: "N", x: 420, y: 230, type: "nonterminal" },
+              { id: "plus", label: "+", x: 500, y: 230, type: "terminal" },
+              { id: "n3", label: "N", x: 580, y: 230, type: "nonterminal" },
+              { id: "l4", label: "4", x: 230, y: 295, type: "terminal" },
+              { id: "l3", label: "3", x: 420, y: 295, type: "terminal" },
+              { id: "l1", label: "1", x: 580, y: 295, type: "terminal" }
+            ],
+            edges: [
+              { from: "s0", to: "s1" }, { from: "s0", to: "mul" }, { from: "s0", to: "s2" },
+              { from: "s1", to: "n1" }, { from: "n1", to: "l4" },
+              { from: "s2", to: "n2" }, { from: "s2", to: "plus" }, { from: "s2", to: "n3" },
+              { from: "n2", to: "l3" }, { from: "n3", to: "l1" }
+            ]
+          }
+        }
+      ]
+    },
+    p2DfaEnds00: {
+      title: "P2: AFD para strings terminadas em 00",
+      summary: "Simulação do AFD que mantém apenas o sufixo relevante para decidir se a entrada termina em 00.",
+      automaton: {
+        states: [
+          { id: "q0", x: 120, y: 160, initial: true },
+          { id: "q1", x: 340, y: 160 },
+          { id: "q2", x: 560, y: 160, accepting: true }
+        ],
+        transitions: [
+          { id: "q0_q0", from: "q0", to: "q0", label: "1" },
+          { id: "q0_q1", from: "q0", to: "q1", label: "0" },
+          { id: "q1_q2", from: "q1", to: "q2", label: "0" },
+          { id: "q1_q0", from: "q1", to: "q0", label: "1" },
+          { id: "q2_q2", from: "q2", to: "q2", label: "0" },
+          { id: "q2_q0", from: "q2", to: "q0", label: "1" }
+        ]
+      },
+      steps: [
+        { title: "Entrada 1100", text: "Começa em q0. q0 significa: ainda não vi o sufixo 0 relevante.", activeStates: ["q0"], activeTransitions: [], input: "1100", inputPosition: 0 },
+        { title: "Lê 1", text: "Em q0 lendo 1, permanece em q0. O sufixo ainda não termina em 0.", activeStates: ["q0"], activeTransitions: ["q0_q0"], input: "1100", inputPosition: 1 },
+        { title: "Lê 1 novamente", text: "Outro 1 mantém o autômato em q0.", activeStates: ["q0"], activeTransitions: ["q0_q0"], input: "1100", inputPosition: 2 },
+        { title: "Lê 0", text: "Ao ler 0, vai para q1: a entrada vista até aqui termina com exatamente um 0.", activeStates: ["q1"], activeTransitions: ["q0_q1"], input: "1100", inputPosition: 3 },
+        { title: "Lê 0 final", text: "q1 lendo 0 vai para q2. Como q2 é final, 1100 é aceita.", activeStates: ["q2"], activeTransitions: ["q1_q2"], input: "1100", inputPosition: 4 }
+      ]
+    },
+    p2PdaAnBn: {
+      title: "P2: AP reconhecendo a^n b^n",
+      summary: "O AP empilha um marcador para cada a e desempilha um marcador para cada b.",
+      automaton: {
+        states: [
+          { id: "q0", x: 110, y: 170, initial: true },
+          { id: "q1", x: 310, y: 170 },
+          { id: "q2", x: 510, y: 170 },
+          { id: "q3", x: 310, y: 280, accepting: true }
+        ],
+        transitions: [
+          { id: "q0_q1", from: "q0", to: "q1", label: "ε, ε -> $" },
+          { id: "q1_q1", from: "q1", to: "q1", label: "a, ε -> #" },
+          { id: "q1_q2", from: "q1", to: "q2", label: "b, # -> ε" },
+          { id: "q2_q2", from: "q2", to: "q2", label: "b, # -> ε" },
+          { id: "q2_q3", from: "q2", to: "q3", label: "ε, $ -> ε" }
+        ]
+      },
+      steps: [
+        { title: "Marca base", text: "O AP começa com uma ε-transição e empilha <strong>$</strong> como base.", activeStates: ["q1"], activeTransitions: ["q0_q1"], input: "aaabbb", inputPosition: 0, stack: ["$"] },
+        { title: "Primeiro a", text: "Lê a e empilha #. Cada # representa um a lido.", activeStates: ["q1"], activeTransitions: ["q1_q1"], input: "aaabbb", inputPosition: 1, stack: ["$", "#"] },
+        { title: "Segundo a", text: "Lê outro a e empilha mais um #.", activeStates: ["q1"], activeTransitions: ["q1_q1"], input: "aaabbb", inputPosition: 2, stack: ["$", "#", "#"] },
+        { title: "Terceiro a", text: "Lê o terceiro a e empilha o terceiro #.", activeStates: ["q1"], activeTransitions: ["q1_q1"], input: "aaabbb", inputPosition: 3, stack: ["$", "#", "#", "#"] },
+        { title: "Primeiro b", text: "Ao ler b, muda para q2 e desempilha um #.", activeStates: ["q2"], activeTransitions: ["q1_q2"], input: "aaabbb", inputPosition: 4, stack: ["$", "#", "#"] },
+        { title: "Segundo b", text: "Lê b e desempilha outro #.", activeStates: ["q2"], activeTransitions: ["q2_q2"], input: "aaabbb", inputPosition: 5, stack: ["$", "#"] },
+        { title: "Terceiro b", text: "Lê o último b e desempilha o último #.", activeStates: ["q2"], activeTransitions: ["q2_q2"], input: "aaabbb", inputPosition: 6, stack: ["$"] },
+        { title: "Aceitação", text: "A entrada acabou e sobrou apenas $. A ε-transição remove a base e aceita.", activeStates: ["q3"], activeTransitions: ["q2_q3"], input: "aaabbb", inputPosition: 6, stack: [] }
+      ]
+    },
+    p2PumpingCfl: {
+      title: "P2: bombeamento para LLCs",
+      summary: "Visualização textual do efeito de bombear as partes v e y em s = uvxyz.",
+      steps: [
+        {
+          title: "String base",
+          text: "Considere <strong>s = aaabbbccc</strong> para a linguagem {a^n b^n c^n | n >= 0}. Uma divisão didática é u=a, v=aa, x=bbb, y=c, z=cc.",
+          grammar: { productions: [{ left: "s", right: ["u v x y z"] }] }
+        },
+        {
+          title: "i = 1",
+          text: "Com i=1, a string permanece <strong>aaabbbccc</strong>. As contagens são a=3, b=3, c=3.",
+          grammar: { productions: [{ left: "uvxyz", right: ["a aa bbb c cc"] }] }
+        },
+        {
+          title: "i = 0",
+          text: "Com i=0, removemos v e y: <strong>abbbcc</strong>. As contagens viram a=1, b=3, c=2; a forma a^n b^n c^n quebra.",
+          grammar: { productions: [{ left: "uxz", right: ["a bbb cc"] }] }
+        },
+        {
+          title: "i = 2",
+          text: "Com i=2, duplicamos v e y: <strong>aaaaabbbcccc</strong>. As contagens viram a=5, b=3, c=4; a igualdade também quebra.",
+          grammar: { productions: [{ left: "uvvxyyz", right: ["a aa aa bbb c c cc"] }] }
+        }
+      ]
+    },
+    p2TmEnds0: {
+      title: "P2: MT que aceita strings terminadas em 0",
+      summary: "Simula a máquina que vai até o branco, volta ao último símbolo real e aceita se ele for 0.",
+      automaton: {
+        states: [
+          { id: "q0", x: 120, y: 150, initial: true },
+          { id: "q1", x: 340, y: 150 },
+          { id: "qac", x: 560, y: 95, accepting: true },
+          { id: "qrej", x: 560, y: 215 }
+        ],
+        transitions: [
+          { id: "q0_q0", from: "q0", to: "q0", label: "0/1 -> D" },
+          { id: "q0_q1", from: "q0", to: "q1", label: "_ -> E" },
+          { id: "q1_qac", from: "q1", to: "qac", label: "0 -> aceita" },
+          { id: "q1_qrej", from: "q1", to: "qrej", label: "1/_ -> rejeita" }
+        ]
+      },
+      steps: [
+        { title: "Início", text: "Entrada 1010. A cabeça começa no primeiro símbolo em q0.", activeStates: ["q0"], activeTransitions: [], tape: ["1", "0", "1", "0", "_"], headPosition: 0 },
+        { title: "Varre 1", text: "q0 lendo 1 mantém 1 e anda para a direita.", activeStates: ["q0"], activeTransitions: ["q0_q0"], tape: ["1", "0", "1", "0", "_"], headPosition: 1 },
+        { title: "Varre 0", text: "q0 lendo 0 mantém 0 e anda para a direita.", activeStates: ["q0"], activeTransitions: ["q0_q0"], tape: ["1", "0", "1", "0", "_"], headPosition: 2 },
+        { title: "Varre 1", text: "q0 continua até alcançar o branco após a palavra.", activeStates: ["q0"], activeTransitions: ["q0_q0"], tape: ["1", "0", "1", "0", "_"], headPosition: 3 },
+        { title: "Varre último 0", text: "Ainda em q0, lê o último 0 e move para a célula branca.", activeStates: ["q0"], activeTransitions: ["q0_q0"], tape: ["1", "0", "1", "0", "_"], headPosition: 4 },
+        { title: "Volta uma posição", text: "Ao ler branco, vai para q1 e move a cabeça para a esquerda, ficando sobre o último símbolo real.", activeStates: ["q1"], activeTransitions: ["q0_q1"], tape: ["1", "0", "1", "0", "_"], headPosition: 3 },
+        { title: "Aceita", text: "q1 lê 0. Portanto a string termina em 0 e a máquina aceita.", activeStates: ["qac"], activeTransitions: ["q1_qac"], tape: ["1", "0", "1", "0", "_"], headPosition: 3 }
+      ]
+    },
+    p2TwoTapeCopy: {
+      title: "P2: MT de duas fitas copiando entrada",
+      summary: "Mostra uma transição lendo duas fitas, escrevendo em duas fitas e movendo as duas cabeças.",
+      steps: [
+        {
+          title: "Configuração inicial",
+          text: "A fita 1 contém a entrada 10110. A fita 2 começa em branco.",
+          tapes: [
+            { label: "Fita 1 - entrada", cells: ["1", "0", "1", "1", "0", "_"], headPosition: 0 },
+            { label: "Fita 2 - rascunho", cells: ["_", "_", "_", "_", "_", "_"], headPosition: 0 }
+          ]
+        },
+        {
+          title: "Copia 1",
+          text: "δ(qcopy, 1, _) = (qcopy, 1, 1, D, D). Copia 1 para a fita 2.",
+          tapes: [
+            { label: "Fita 1 - entrada", cells: ["1", "0", "1", "1", "0", "_"], headPosition: 1 },
+            { label: "Fita 2 - rascunho", cells: ["1", "_", "_", "_", "_", "_"], headPosition: 1 }
+          ]
+        },
+        {
+          title: "Copia 0",
+          text: "Lê 0 na fita 1 e branco na fita 2. Escreve 0 na fita 2 e move as duas cabeças.",
+          tapes: [
+            { label: "Fita 1 - entrada", cells: ["1", "0", "1", "1", "0", "_"], headPosition: 2 },
+            { label: "Fita 2 - rascunho", cells: ["1", "0", "_", "_", "_", "_"], headPosition: 2 }
+          ]
+        },
+        {
+          title: "Copia 1",
+          text: "Repete a mesma ideia para o próximo 1.",
+          tapes: [
+            { label: "Fita 1 - entrada", cells: ["1", "0", "1", "1", "0", "_"], headPosition: 3 },
+            { label: "Fita 2 - rascunho", cells: ["1", "0", "1", "_", "_", "_"], headPosition: 3 }
+          ]
+        },
+        {
+          title: "Copia 1 e 0",
+          text: "Ao final das cópias, a fita 2 contém a mesma palavra da fita 1.",
+          tapes: [
+            { label: "Fita 1 - entrada", cells: ["1", "0", "1", "1", "0", "_"], headPosition: 5 },
+            { label: "Fita 2 - rascunho", cells: ["1", "0", "1", "1", "0", "_"], headPosition: 5 }
+          ]
+        },
+        {
+          title: "Aceitação",
+          text: "Quando a fita 1 lê branco, a máquina termina a cópia e aceita.",
+          tapes: [
+            { label: "Fita 1 - entrada", cells: ["1", "0", "1", "1", "0", "_"], headPosition: 5 },
+            { label: "Fita 2 - rascunho", cells: ["1", "0", "1", "1", "0", "_"], headPosition: 5 }
+          ]
+        }
+      ]
     }
   },
 
@@ -2748,5 +2996,391 @@ window.LFA_SITE_DATA = {
         ]
       }
     }
-  ]
+  ],
+  p2Guide: {
+    title: "Guia animado da Prova 2",
+    subtitle: "Ordem completa: GLC -> AP -> limites -> MT -> duas fitas",
+    description: "Sequência de revisão baseada nas aulas após a Prova 1, com explicações curtas, tabelas de decisão, animações passo a passo e checklist final.",
+    sources: "Aulas 13, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 26 e 27; lista Exercicios-P2.",
+    sections: [
+      {
+        id: "glc",
+        topicSlug: "gramaticas-livres-contexto",
+        title: "1. GLC: Gramática Livre de Contexto",
+        navLabel: "1. GLC",
+        source: "Aula 13, slides 4-12; Aula 15, slides 2-9; Aula 27, slides 22-28.",
+        html: `
+          <p>Uma <strong>gramática</strong> é um receituário para produzir strings. Em vez de listar todas as palavras da linguagem, você define regras que geram essas palavras.</p>
+          <div class="formula"><strong>Forma formal:</strong> G = (V, Σ, R, S)</div>
+          <div class="p2-mini-grid">
+            <div class="p2-mini"><strong>V - variáveis</strong><p>Símbolos não terminais que ainda precisam ser substituídos. Ex.: S, A, B, N, D.</p></div>
+            <div class="p2-mini"><strong>Σ - alfabeto</strong><p>Símbolos terminais que aparecem nas strings finais. Ex.: {a,b}, {0,1}, {+,*,0,...,9}.</p></div>
+            <div class="p2-mini"><strong>R - regras</strong><p>Produções como S -> aSa, que trocam uma variável por terminais e/ou variáveis.</p></div>
+            <div class="p2-mini"><strong>S - inicial</strong><p>Variável pela qual toda derivação começa.</p></div>
+          </div>
+          <h3>Exemplo clássico</h3>
+          <pre>G = (V, Σ, R, S)
+
+V = {S}
+Σ = {a, b}
+R:
+  S -> aSa | bSb | a | b | ε
+S = S</pre>
+          <p>Essa gramática gera palíndromos sobre {a,b}: palavras que lidas da esquerda para a direita são iguais quando lidas da direita para a esquerda.</p>
+          <div class="p2-note p2-warn"><strong>Detalhe de prova:</strong> ε representa a string vazia, não é uma letra do alfabeto.</div>
+        `
+      },
+      {
+        id: "derivacao",
+        topicSlug: "gramaticas-livres-contexto",
+        title: "2. Derivação e linguagem gerada L(G)",
+        navLabel: "2. Derivação",
+        source: "Aula 13, slides 5-12; Aula 15, slides 7-18; Aula 16, slides 2-7; Exercicios-P2 Q1.",
+        animationIds: ["p2CfgDerivation"],
+        html: `
+          <p><strong>Derivar</strong> é aplicar regras passo a passo, começando pelo símbolo inicial, até sobrar apenas símbolos terminais. A <strong>linguagem gerada</strong>, escrita como L(G), é o conjunto de todas as strings que a gramática consegue produzir.</p>
+          <h3>Exemplos de strings deriváveis</h3>
+          <div class="table-scroll">
+            <table class="p2-table">
+              <thead><tr><th>String</th><th>Derivação possível</th></tr></thead>
+              <tbody>
+                <tr><td>ε</td><td>S => ε</td></tr>
+                <tr><td>a</td><td>S => a</td></tr>
+                <tr><td>b</td><td>S => b</td></tr>
+                <tr><td>aa</td><td>S => aSa => aa</td></tr>
+                <tr><td>abba</td><td>S => aSa => abSba => abba</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="p2-note p2-success"><strong>Resposta padrão:</strong> a linguagem gerada é o conjunto de todos os palíndromos sobre {a,b}, incluindo a string vazia.</div>
+        `
+      },
+      {
+        id: "arvore",
+        topicSlug: "gramaticas-livres-contexto",
+        title: "3. Árvore de derivação sintática e ambiguidade",
+        navLabel: "3. Árvores",
+        source: "Aula 16, slides 2-28; Aula 15, slides 18-21.",
+        animationIds: ["p2AmbiguousTree"],
+        html: `
+          <p>A <strong>árvore de derivação</strong> representa graficamente uma derivação. A raiz é o símbolo inicial, os nós internos são variáveis, e as folhas formam a string final.</p>
+          <div class="p2-mini-grid">
+            <div class="p2-mini"><strong>Árvore de derivação</strong><p>Mostra a estrutura da string produzida pela gramática.</p></div>
+            <div class="p2-mini"><strong>Gramática ambígua</strong><p>Existe quando uma mesma string pode ter duas árvores de derivação diferentes.</p></div>
+          </div>
+          <h3>Gramática de expressões</h3>
+          <pre>S -> S + S | S * S | N
+N -> D | DN
+D -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9</pre>
+          <p>A expressão 4*3+1 pode ser interpretada como (4*3)+1 ou como 4*(3+1).</p>
+          <div class="p2-note p2-danger"><strong>Na prova:</strong> para mostrar ambiguidade, exiba duas árvores diferentes para a mesma string.</div>
+        `
+      },
+      {
+        id: "regular-llc",
+        topicSlug: "gramaticas-livres-contexto",
+        title: "4. Linguagem regular x linguagem livre de contexto",
+        navLabel: "4. Regular x LLC",
+        source: "Aula 17, slides 21-25; Aula 27, slides 15-21 e 29; Exercicios-P2 Q2 e Q3.",
+        html: `
+          <p>Uma linguagem é <strong>regular</strong> se pode ser descrita por ER, gramática regular, AFD ou AFND. Uma linguagem é <strong>livre-de-contexto</strong> se existe uma GLC que a gera.</p>
+          <div class="formula">Toda linguagem regular é livre-de-contexto, mas nem toda livre-de-contexto é regular.</div>
+          <div class="table-scroll">
+            <table class="p2-table">
+              <thead><tr><th>Tipo</th><th>Modelo típico</th><th>Exemplo</th><th>Observação</th></tr></thead>
+              <tbody>
+                <tr><td>Regular</td><td>AFD / AFND / ER</td><td>{x ∈ {0,1}* : x termina em 00}</td><td>Precisa de memória finita.</td></tr>
+                <tr><td>Livre-de-contexto</td><td>GLC / AP</td><td>{a^n b^n : n >= 0}</td><td>Precisa comparar quantidades; pilha resolve.</td></tr>
+                <tr><td>Não LLC</td><td>Não há AP/GLC</td><td>{a^n b^n c^n : n >= 0}</td><td>Uma pilha não compara três blocos ao mesmo tempo.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="p2-note">Para justificar que uma linguagem regular é LLC: como toda regular é livre-de-contexto, basta provar que ela é regular.</div>
+        `
+      },
+      {
+        id: "fechamento",
+        topicSlug: "gramaticas-livres-contexto",
+        title: "5. Operações com Linguagens Livres-de-Contexto",
+        navLabel: "5. Fechamento",
+        source: "Aula 17, slides 3-18; Aula 18, slides 3-14 e 30-46; Aula 19, slides 3-32; Aula 20, slides 2-24.",
+        html: `
+          <p>Fechamento significa: se eu aplico uma operação em linguagens de uma classe, o resultado continua na mesma classe?</p>
+          <div class="table-scroll">
+            <table class="p2-table">
+              <thead><tr><th>Operação</th><th>LLCs são fechadas?</th><th>Como lembrar</th></tr></thead>
+              <tbody>
+                <tr><td>União L1 ∪ L2</td><td>Sim</td><td>Crie S -> S1 | S2.</td></tr>
+                <tr><td>Concatenação L1L2</td><td>Sim</td><td>Crie S -> S1S2.</td></tr>
+                <tr><td>Estrela L*</td><td>Sim</td><td>Crie S' -> S'S | ε.</td></tr>
+                <tr><td>Reverso L^R</td><td>Sim</td><td>Inverta o lado direito das regras.</td></tr>
+                <tr><td>Intersecção L1 ∩ L2</td><td>Não, em geral</td><td>Duas LLCs podem ter intersecção não-LLC.</td></tr>
+                <tr><td>Complemento</td><td>Não, em geral</td><td>Se fosse fechada por complemento, seria por intersecção via De Morgan.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <pre>L1 = {a^n b^n c^j : n,j >= 0}
+L2 = {a^j b^n c^n : n,j >= 0}
+
+L1 e L2 são LLCs.
+Mas L1 ∩ L2 = {a^n b^n c^n : n >= 0}, que não é LLC.</pre>
+        `
+      },
+      {
+        id: "afd",
+        topicSlug: "afd",
+        title: "6. AFD: linguagem que termina em 00",
+        navLabel: "6. AFD termina 00",
+        source: "Aula 27, slide 29; Exercicios-P2 Q2.",
+        animationIds: ["p2DfaEnds00"],
+        html: `
+          <p>Essa linguagem aparece diretamente nos exercícios da P2.</p>
+          <div class="formula">L = { x ∈ {0,1}* : x termina em 00 }</div>
+          <p>Ela é regular porque um AFD só precisa lembrar o sufixo relevante: não terminei com 0, terminei com um 0 ou terminei com 00.</p>
+        `
+      },
+      {
+        id: "ap",
+        topicSlug: "automato-pilha",
+        title: "7. Autômato com Pilha (AP)",
+        navLabel: "7. AP",
+        source: "Aula 17, slides 26-50; Aula 18, slides 16-29; Aula 27, slides 30-34.",
+        animationIds: ["p2PdaAnBn"],
+        html: `
+          <p>Um <strong>Autômato com Pilha</strong> é como um AFND com memória extra. A pilha funciona em LIFO: o último símbolo empilhado é o primeiro a sair.</p>
+          <div class="p2-mini-grid three">
+            <div class="p2-mini"><strong>Push</strong><p>Empilhar símbolo. Para cada a, empilha #.</p></div>
+            <div class="p2-mini"><strong>Pop</strong><p>Desempilhar símbolo. Para cada b, remove #.</p></div>
+            <div class="p2-mini"><strong>ε-transição</strong><p>Muda de estado sem consumir entrada.</p></div>
+          </div>
+          <div class="formula">Exemplo: L = {a^n b^n : n >= 0}</div>
+          <p>Ideia: leia os a's e empilhe um marcador para cada um. Depois leia os b's e desempilhe um marcador para cada um. Aceite apenas se a entrada acabar quando a pilha voltar à base.</p>
+        `
+      },
+      {
+        id: "glc-ap",
+        topicSlug: "automato-pilha",
+        title: "8. Equivalência: GLC <-> AP",
+        navLabel: "8. GLC <-> AP",
+        source: "Aula 20, slides 28-39; Aula 21, slides 2-3; Aula 27, slides 30-34.",
+        html: `
+          <p>Este é um dos pontos centrais: linguagem livre-de-contexto pode ser vista de duas formas equivalentes.</p>
+          <div class="formula">L é LLC ⇔ existe uma GLC que gera L ⇔ existe um AP que reconhece L</div>
+          <h3>Intuição de GLC para AP</h3>
+          <p>O AP pode simular uma derivação. Ele empilha uma marca de base, depois o símbolo inicial S; quando o topo é variável, escolhe uma regra; quando é terminal, compara com a entrada.</p>
+          <h3>Intuição de AP para GLC</h3>
+          <p>A partir de um AP, podemos construir uma GLC que descreve formas de ir de um estado a outro consumindo entrada e manipulando a pilha.</p>
+          <div class="p2-note">Verdadeiro/falso: se uma linguagem pode ser reconhecida por AP, então ela é livre-de-contexto. <strong>Verdadeiro.</strong></div>
+        `
+      },
+      {
+        id: "nao-llc",
+        topicSlug: "lema-bombeamento-llc",
+        title: "9. Linguagens não livres-de-contexto e Lema do Bombeamento para LLCs",
+        navLabel: "9. Não LLC",
+        source: "Aula 18, slides 31-35; Aula 19, slides 5-9; Aula 21, slides 6-32; Aula 22, slides 2-12.",
+        animationIds: ["p2PumpingCfl"],
+        html: `
+          <p>O exemplo mais importante é:</p>
+          <div class="formula">L = {a^n b^n c^n : n >= 0}</div>
+          <p>Essa linguagem exige comparar três quantidades iguais. Uma pilha é boa para comparar dois blocos, como a^n b^n, mas não mantém simultaneamente três contagens.</p>
+          <h3>Lema do Bombeamento para LLCs</h3>
+          <p>Se L é uma LLC, então toda string suficientemente grande s ∈ L pode ser dividida em:</p>
+          <div class="formula">s = u v x y z</div>
+          <ul>
+            <li>para todo i >= 0, u v^i x y^i z ∈ L;</li>
+            <li>v e y não podem ser ambos vazios;</li>
+            <li>|vxy| <= p, isto é, o miolo bombeável é limitado.</li>
+          </ul>
+          <div class="p2-note p2-warn">O lema é usado por contradição: assuma que a linguagem é LLC, escolha uma string grande e mostre que qualquer divisão quebra a linguagem quando bombeada.</div>
+        `
+      },
+      {
+        id: "lba",
+        topicSlug: "maquina-turing",
+        title: "10. Autômato Linearmente Limitado (ALL) e Hierarquia de Chomsky",
+        navLabel: "10. ALL",
+        source: "Aula 12, slides 13-14; Aula 13, slides 2-3; Aula 17, slides 21-25; Aula 22, slides 13-25; Aula 27, slides 15-21.",
+        html: `
+          <p>Depois de ver que AP não reconhece tudo, entra um modelo mais poderoso: o <strong>Autômato Linearmente Limitado</strong>. Ele é parecido com uma MT, mas sua fita é limitada ao tamanho da entrada.</p>
+          <div class="p2-mini-grid">
+            <div class="p2-mini"><strong>AP</strong><p>Tem pilha. Reconhece linguagens livres-de-contexto.</p></div>
+            <div class="p2-mini"><strong>ALL</strong><p>Tem fita limitada. Reconhece linguagens sensíveis ao contexto.</p></div>
+          </div>
+          <div class="table-scroll">
+            <table class="p2-table">
+              <thead><tr><th>Classe</th><th>Gramática</th><th>Máquina típica</th><th>Exemplo</th></tr></thead>
+              <tbody>
+                <tr><td>Regular</td><td>Regular</td><td>AFD/AFND</td><td>termina em 00</td></tr>
+                <tr><td>Livre-de-contexto</td><td>GLC</td><td>AP</td><td>a^n b^n</td></tr>
+                <tr><td>Sensível ao contexto</td><td>GSC</td><td>ALL</td><td>a^n b^n c^n</td></tr>
+                <tr><td>Recursivamente enumerável</td><td>Irrestrita</td><td>Máquina de Turing</td><td>problemas Turing-reconhecíveis</td></tr>
+              </tbody>
+            </table>
+          </div>
+        `
+      },
+      {
+        id: "problemas",
+        topicSlug: "decidibilidade",
+        title: "11. Problema computacional, problema de decisão e linguagem",
+        navLabel: "11. Problemas",
+        source: "Aula 22, slides 26-43; Aula 23, slides 2-18; Aula 24, slides 2-18; Aula 27, slides 3-14.",
+        html: `
+          <p>Um <strong>problema computacional</strong> tem entradas possíveis e uma resposta associada. Um <strong>problema de decisão</strong> é o caso em que a resposta é SIM ou NÃO.</p>
+          <div class="p2-mini-grid">
+            <div class="p2-mini"><strong>Problema geral</strong><p>Entrada: número x. Saída: raiz quadrada de x.</p></div>
+            <div class="p2-mini"><strong>Problema de decisão</strong><p>Entrada: número n. Saída: SIM se n é primo; NÃO caso contrário.</p></div>
+          </div>
+          <h3>Por que problema de decisão vira linguagem?</h3>
+          <p>Porque podemos considerar a linguagem como o conjunto das entradas cuja resposta é SIM.</p>
+          <pre>Problema: "n é primo?"
+L_primo = { strings que representam números primos }
+
+Se a entrada representa 7, está na linguagem.
+Se a entrada representa 8, não está na linguagem.</pre>
+        `
+      },
+      {
+        id: "mt",
+        topicSlug: "maquina-turing",
+        title: "12. Máquina de Turing (MT)",
+        navLabel: "12. MT",
+        source: "Aula 22, slides 54-59; Aula 23, slides 19-41; Aula 24, slides 19-41; Aula 26, slides 2-10; Aula 27, slides 35-43; Exercicios-P2 Q4.",
+        animationIds: ["p2TmEnds0"],
+        html: `
+          <p>A Máquina de Turing é um modelo mais poderoso que os autômatos anteriores. Ela tem fita ilimitada, uma cabeça que lê/escreve e um controle de estados.</p>
+          <div class="formula">M = (Q, Σ, Γ, δ, s, q<sub>aceita</sub>, q<sub>rejeita</sub>)</div>
+          <div class="table-scroll">
+            <table class="p2-table">
+              <thead><tr><th>Componente</th><th>Significado</th></tr></thead>
+              <tbody>
+                <tr><td>Q</td><td>Conjunto finito de estados.</td></tr>
+                <tr><td>Σ</td><td>Alfabeto de entrada.</td></tr>
+                <tr><td>Γ</td><td>Alfabeto de trabalho, incluindo Σ e branco.</td></tr>
+                <tr><td>δ</td><td>Função de transição.</td></tr>
+                <tr><td>s</td><td>Estado inicial.</td></tr>
+                <tr><td>q<sub>aceita</sub></td><td>Estado terminal de aceitação.</td></tr>
+                <tr><td>q<sub>rejeita</sub></td><td>Estado terminal de rejeição.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <pre>Q = {q0, q1, qac, qrej}
+Σ = {0,1}
+Γ = {0,1,_}
+s = q0
+qaceita = qac
+qrejeita = qrej
+
+δ(q0,0) = (q0,0,D)
+δ(q0,1) = (q0,1,D)
+δ(q0,_) = (q1,_,E)
+δ(q1,0) = (qac,0,D)
+δ(q1,1) = (qrej,1,D)
+δ(q1,_) = (qrej,_,D)</pre>
+        `
+      },
+      {
+        id: "mt-decide",
+        topicSlug: "decidibilidade",
+        title: "13. Turing-reconhecível, Turing-decidível e decisor",
+        navLabel: "13. Decidibilidade",
+        source: "Aula 23, slides 36-41; Aula 24, slides 36-41; Aula 26, slides 7-10; Aula 27, slides 42-43.",
+        html: `
+          <div class="table-scroll">
+            <table class="p2-table">
+              <thead><tr><th>Conceito</th><th>O que significa</th><th>Possível problema</th></tr></thead>
+              <tbody>
+                <tr><td>Turing-reconhecível</td><td>Existe MT que aceita toda string da linguagem.</td><td>Fora da linguagem, pode rejeitar ou entrar em loop.</td></tr>
+                <tr><td>Turing-decidível</td><td>Existe MT que sempre para: aceita se está em L e rejeita se não está.</td><td>Nenhum loop infinito é permitido.</td></tr>
+                <tr><td>Decisor</td><td>Uma MT que decide uma linguagem.</td><td>Tem que parar para toda entrada.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="p2-note">Para a MT que reconhece strings terminadas em 0, ela é decisor porque sempre anda até o fim, volta uma posição e aceita ou rejeita.</div>
+        `
+      },
+      {
+        id: "representacao",
+        topicSlug: "maquina-turing",
+        title: "14. Representação de entradas complexas",
+        navLabel: "14. Representações",
+        source: "Aula 26, slides 12-23; plano de aula sobre representação de entradas complexas.",
+        html: `
+          <p>Máquinas de Turing recebem strings. Quando queremos resolver problemas sobre números, grafos ou outras máquinas, precisamos representar esses objetos como strings.</p>
+          <div class="table-scroll">
+            <table class="p2-table">
+              <thead><tr><th>Objeto</th><th>Representação possível</th><th>Linguagem associada</th></tr></thead>
+              <tbody>
+                <tr><td>Número</td><td>Binário: 7 -> 111</td><td>Strings que representam primos.</td></tr>
+                <tr><td>Grafo</td><td>Lista de vértices e arestas em texto</td><td>Strings que representam grafos com caminho s->t.</td></tr>
+                <tr><td>Outra MT</td><td>Código da própria máquina</td><td>Base para problemas como parada.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="p2-note p2-warn">A ideia importante não é decorar uma codificação específica, mas entender que qualquer objeto finito pode ser codificado como string.</div>
+        `
+      },
+      {
+        id: "duas-fitas",
+        topicSlug: "maquina-turing",
+        title: "15. Máquina de Turing com duas fitas",
+        navLabel: "15. Duas fitas",
+        source: "Aula 26, slides 24-28, especialmente MT com múltiplas fitas.",
+        animationIds: ["p2TwoTapeCopy"],
+        html: `
+          <p>A MT padrão tem uma fita. Uma MT com múltiplas fitas tem k fitas e k cabeças. A cada passo, a transição observa todos os símbolos sob as cabeças, escreve em todas as fitas e move cada cabeça.</p>
+          <div class="formula">δ(q, σ1, σ2) = (q', τ1, τ2, movimento1, movimento2)</div>
+          <p>Na versão de duas fitas, a entrada normalmente começa na fita 1, e a fita 2 serve como rascunho. Isso facilita descrever algoritmos, embora não aumente o conjunto de linguagens reconhecíveis.</p>
+          <pre>Q = {qcopy, qac}
+Σ = {0,1}
+Γ = {0,1,_}
+
+δ(qcopy, 0, _) = (qcopy, 0, 0, D, D)
+δ(qcopy, 1, _) = (qcopy, 1, 1, D, D)
+δ(qcopy, _, _) = (qac,   _, _, D, D)</pre>
+        `
+      },
+      {
+        id: "checklist",
+        topicSlug: "decidibilidade",
+        title: "16. Checklist final para a Prova 2",
+        navLabel: "16. Checklist",
+        source: "Lista Exercicios-P2 e revisão geral da P2.",
+        checklist: [
+          "Sei explicar G = (V, Σ, R, S).",
+          "Sei identificar alfabeto, variáveis, regras e símbolo inicial.",
+          "Sei derivar palavras com uma GLC.",
+          "Sei dizer o que é L(G).",
+          "Sei reconhecer a gramática dos palíndromos.",
+          "Sei montar/interpretar árvore de derivação.",
+          "Sei explicar ambiguidade com duas árvores diferentes.",
+          "Sei que toda regular é LLC.",
+          "Sei justificar que termina em 00 é regular e LLC.",
+          "Sei as operações fechadas: união, concatenação, estrela e reverso.",
+          "Sei que LLCs não são fechadas por intersecção e complemento.",
+          "Sei explicar AP com push/pop e reconhecer a^n b^n.",
+          "Sei que GLC e AP são equivalentes para LLC.",
+          "Sei por que a^n b^n c^n não é LLC.",
+          "Sei a forma do lema do bombeamento para LLCs: uvxyz.",
+          "Sei a hierarquia: AFD/AFND, AP, ALL, MT.",
+          "Sei o que é problema de decisão e como ele vira linguagem.",
+          "Sei a tupla da MT: Q, Σ, Γ, δ, s, qaceita, qrejeita.",
+          "Sei simular uma MT simples por pseudocódigo.",
+          "Sei diferenciar Turing-reconhecível e Turing-decidível.",
+          "Sei explicar MT com duas fitas."
+        ],
+        html: `
+          <h3>Ordem de revisão recomendada</h3>
+          <ol>
+            <li>Faça a Q1 da lista sem olhar: GLC, alfabeto, derivação, linguagem gerada.</li>
+            <li>Faça a Q2: linguagem termina em 00, regular e LLC.</li>
+            <li>Faça a Q3: verdadeiro/falso com justificativa curta.</li>
+            <li>Faça a Q4: MT do pseudocódigo, linguagem aceita, diagrama, tupla e decisor.</li>
+            <li>Revise AP para a^n b^n e MT com duas fitas como reforço conceitual.</li>
+          </ol>
+        `
+      }
+    ]
+  }
 };

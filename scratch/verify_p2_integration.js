@@ -51,7 +51,7 @@ assert.ok(data.p2Guide, "LFA_SITE_DATA.p2Guide should exist");
 assert.equal(data.p2Guide.title, "Guia animado da Prova 2");
 assert.equal(data.p2Guide.sections.length, expectedSections.length);
 assert.deepEqual(
-  data.p2Guide.sections.map((section) => section.id),
+  Array.from(data.p2Guide.sections, (section) => section.id),
   expectedSections,
 );
 

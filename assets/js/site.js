@@ -25,7 +25,7 @@
 
   function basePrefix(){
     const path = location.pathname.replace(/\\/g,'/');
-    return path.includes('/teoria/') || path.includes('/exercicios/') ? '../' : '';
+    return path.includes('/teoria/') || path.includes('/exercicios/') || path.includes('/prova2/') ? '../' : '';
   }
 
   function slugLabel(slug){
@@ -245,6 +245,19 @@
     container.append(wrap);
   }
 
+  function renderMultiTape(container, tapes){
+    container.innerHTML = '';
+    if(!tapes || !tapes.length) return;
+    tapes.forEach(tape => {
+      const group = el('div', {class:'multi-tape-row'});
+      group.append(el('strong', {}, [tape.label || 'Fita']));
+      const tapeWrap = el('div');
+      renderTape(tapeWrap, tape.cells || [], tape.headPosition || 0);
+      group.append(tapeWrap);
+      container.append(group);
+    });
+  }
+
   /* ── Render Stack (PDA) ── */
   function renderStack(container, stack){
     container.innerHTML = '';
@@ -390,6 +403,7 @@
 
     const box = el('div', {class:'graph-box'});
     const tapeBox = el('div', {class:'tape-container'});
+    const multiTapeBox = el('div', {class:'multi-tape-container'});
     const stackBox = el('div', {class:'stack-container'});
     const inputBox = el('div', {class:'input-container'});
     const grammarBox = el('div', {class:'grammar-container'});
@@ -400,7 +414,7 @@
     const next = el('button', {type:'button'}, ['Próximo']);
     controls.append(prev, count, next);
 
-    card.append(inputBox, box, tapeBox, stackBox, grammarBox, text, controls);
+    card.append(inputBox, box, tapeBox, multiTapeBox, stackBox, grammarBox, text, controls);
 
     const steps = animation.steps && animation.steps.length ? animation.steps : [{title:animation.title, text:animation.summary || ''}];
     let index = 0;
@@ -411,9 +425,11 @@
       const tree = step.tree || animation.tree;
 
       if(tree){
+        box.hidden = false;
         box.className = 'derivation-tree';
         renderTree(box, tree);
       } else if(auto){
+        box.hidden = false;
         box.className = 'graph-box';
         renderAutomaton(box, auto, {
           activeStates: step.activeStates || [],
@@ -422,6 +438,7 @@
       } else {
         box.className = 'graph-box';
         box.innerHTML = '';
+        box.hidden = true;
       }
 
       if(step.input !== undefined){
@@ -434,6 +451,12 @@
         renderTape(tapeBox, step.tape, step.headPosition || 0);
       } else {
         tapeBox.innerHTML = '';
+      }
+
+      if(step.tapes){
+        renderMultiTape(multiTapeBox, step.tapes);
+      } else {
+        multiTapeBox.innerHTML = '';
       }
 
       if(step.stack){
@@ -519,6 +542,24 @@
       const visualWrap = el('div', {class:'visual-grid'});
       topic.animations.forEach(id => visualWrap.append(renderAnimation(id)));
       content.append(visualWrap);
+
+      const relatedP2 = data.p2Guide?.sections?.filter(section => section.topicSlug === topic.slug) || [];
+      if(relatedP2.length){
+        const p2Wrap = el('article', {class:'content-card p2-related'});
+        p2Wrap.append(el('h3', {}, ['Guia P2 relacionado']));
+        p2Wrap.append(el('p', {}, ['Blocos do guia animado da Prova 2 conectados a este assunto.']));
+        const links = el('div', {class:'p2-related-grid'});
+        const prefix = basePrefix();
+        relatedP2.forEach(section => {
+          links.append(el('a', {class:'p2-related-link', href:`${prefix}prova2/index.html#${section.id}`}, [
+            el('span', {class:'tag'}, ['P2']),
+            el('strong', {}, [section.title]),
+            el('small', {}, [section.source || 'Revisão da Prova 2'])
+          ]));
+        });
+        p2Wrap.append(links);
+        content.append(p2Wrap);
+      }
     };
 
     tabs.innerHTML = '';
@@ -693,10 +734,98 @@
     window.addEventListener('hashchange', selectExerciseFromHash);
   }
 
+  /* ── Prova 2 guide ── */
+  function renderP2Section(section){
+    const card = el('article', {class:'content-card p2-section', id:`p2-${section.id}`});
+    const prefix = basePrefix();
+    const topic = data.theoryTopics.find(item => item.slug === section.topicSlug);
+    card.append(el('span', {class:'source'}, [`Guia P2${section.source ? ` - ${section.source}` : ''}`]));
+    card.append(el('h2', {html:section.title}));
+    if(topic){
+      card.append(el('a', {class:'p2-topic-link', href:`${prefix}teoria/index.html#${topic.slug}`}, [`Ver teoria relacionada: ${topic.title}`]));
+    }
+    if(section.html){
+      card.append(el('div', {class:'p2-rich-text', html:section.html}));
+    }
+    if(section.checklist && section.checklist.length){
+      const checklist = el('div', {class:'p2-checklist'});
+      section.checklist.forEach((item, index) => {
+        const input = el('input', {type:'checkbox', id:`p2-check-${index}`});
+        const label = el('label', {for:`p2-check-${index}`}, [input, el('span', {}, [item])]);
+        checklist.append(label);
+      });
+      card.append(checklist);
+    }
+    if(section.animationIds && section.animationIds.length){
+      const visualWrap = el('div', {class:'visual-grid p2-visuals'});
+      section.animationIds.forEach(id => visualWrap.append(renderAnimation(id)));
+      card.append(visualWrap);
+    }
+    return card;
+  }
+
+  function renderP2Guide(){
+    const guide = data.p2Guide;
+    const tabs = $('#p2Tabs');
+    const content = $('#p2Guide');
+    if(!guide || !tabs || !content) return;
+
+    const setActive = id => {
+      [...tabs.children].forEach(button => button.classList.toggle('active', button.dataset.sectionId === id));
+    };
+
+    const jumpTo = id => {
+      const target = document.getElementById(`p2-${id}`);
+      if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+      setActive(id);
+      collapseRailOnMobile();
+    };
+
+    tabs.innerHTML = '';
+    guide.sections.forEach(section => {
+      const button = el('button', {type:'button', 'data-section-id':section.id}, [section.navLabel || section.title]);
+      button.addEventListener('click', () => {
+        location.hash = section.id;
+        jumpTo(section.id);
+      });
+      tabs.append(button);
+    });
+
+    content.innerHTML = '';
+    const overview = el('article', {class:'content-card p2-overview', id:'p2-visao'});
+    overview.append(el('span', {class:'source'}, [guide.sources]));
+    overview.append(el('h2', {html:guide.title}));
+    overview.append(el('p', {html:guide.description}));
+    const pillRow = el('div', {class:'p2-pillrow'});
+    ['GLC', 'Derivação', 'Árvore sintática', 'AFD', 'AP', 'Lema do Bombeamento', 'ALL', 'MT', 'MT com duas fitas'].forEach(label => {
+      pillRow.append(el('span', {class:'tag'}, [label]));
+    });
+    overview.append(pillRow);
+    overview.append(el('div', {class:'p2-note'}, [
+      el('strong', {}, ['Como usar: ']),
+      'leia cada bloco na ordem e avance as animações com os controles. O objetivo é conseguir explicar na prova, não só decorar símbolos.'
+    ]));
+    content.append(overview);
+
+    guide.sections.forEach(section => content.append(renderP2Section(section)));
+
+    const selectFromHash = () => {
+      const id = decodeURIComponent((location.hash || '').replace('#',''));
+      if(guide.sections.some(section => section.id === id)){
+        requestAnimationFrame(() => jumpTo(id));
+      } else {
+        setActive('');
+      }
+    };
+    selectFromHash();
+    window.addEventListener('hashchange', selectFromHash);
+  }
+
   /* ── Init ── */
   const view = document.body.dataset.view;
   initRailToggle();
   if(view === 'home') renderHome();
   if(view === 'theory') renderTheory();
   if(view === 'exercises') renderExercises();
+  if(view === 'p2') renderP2Guide();
 })();

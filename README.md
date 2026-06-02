@@ -27,6 +27,7 @@ http://127.0.0.1:8080/index.html
 ## Conteúdo
 
 - Conceitos básicos: algoritmos, problemas e modelos computacionais
+- Guia animado da Prova 2 com revisão de GLC, AP, ALL, MT e decidibilidade
 - Teoria dos conjuntos e linguagens formais
 - Autômatos Finitos Determinísticos (AFD)
 - Operações com linguagens (união, concatenação, estrela de Kleene)
@@ -54,6 +55,7 @@ Tipos de visualizações:
 - **Autômatos Finitos**: estados, transições, simulação de entradas
 - **Autômatos com Pilha**: estados, transições e visualização da pilha
 - **Máquinas de Turing**: estados, fita e cabeçote de leitura/escrita
+- **Máquinas de Turing com duas fitas**: fitas paralelas e cabeças independentes
 - **Gramáticas**: produções e derivações passo a passo
 - **Hierarquias**: Chomsky, decidibilidade, complexidade
 
@@ -88,6 +90,7 @@ Na Vercel, use as configurações padrão para um projeto estático:
 ├── index.html
 ├── teoria/
 ├── exercicios/
+├── prova2/
 ├── assets/
 │   ├── css/
 │   │   └── site.css
