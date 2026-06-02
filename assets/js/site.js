@@ -735,6 +735,448 @@
   }
 
   /* ── Prova 2 guide ── */
+  function createP2AnimationCard(title, subtitle=''){
+    const card = el('article', {class:'visual-card p2-anim'});
+    const head = el('div', {class:'p2-anim-title'});
+    head.append(el('h3', {}, [title]));
+    if(subtitle) head.append(el('span', {}, [subtitle]));
+    card.append(head);
+    return card;
+  }
+
+  function renderP2Tape(container, cells, headIndex, options={}){
+    container.innerHTML = '';
+    const tape = el('div', {class:'p2-tape'});
+    cells.forEach((cell, index) => {
+      const classes = ['p2-cell'];
+      if(index === headIndex) classes.push('head');
+      if(index < headIndex && options.markRead !== false) classes.push('read');
+      if(cell === '_' || cell === '⊔') classes.push('blank');
+      tape.append(el('div', {class:classes.join(' ')}, [cell]));
+    });
+    container.append(tape);
+  }
+
+  function renderP2Stack(container, stack){
+    container.innerHTML = '';
+    const stackBox = el('div', {class:'p2-stack'});
+    if(!stack.length){
+      stackBox.append(el('div', {class:'p2-stackitem empty'}, ['vazia']));
+    } else {
+      stack.forEach(symbol => stackBox.append(el('div', {class:'p2-stackitem'}, [symbol])));
+    }
+    container.append(stackBox);
+  }
+
+  function renderP2CfgDerivation(){
+    const card = createP2AnimationCard('Animação: derivando a palavra abba', 'Gramática: S → aSa | bSb | a | b | ε');
+    const box = el('div', {class:'p2-stepbox'});
+    const stepText = el('div', {class:'p2-muted'});
+    const form = el('div', {class:'p2-bigform'});
+    const explain = el('div');
+    box.append(stepText, form, explain);
+    const controls = el('div', {class:'p2-control-row'});
+    const next = el('button', {type:'button'}, ['Próximo passo']);
+    const reset = el('button', {type:'button', class:'secondary'}, ['Reiniciar']);
+    controls.append(next, reset);
+    card.append(box, controls);
+
+    const steps = [
+      {form:'S', rule:'Começamos pelo símbolo inicial S.', explain:'Ainda não temos uma palavra final, porque S é variável.'},
+      {form:'a S a', rule:'Aplicamos S → aSa.', explain:'Criamos a borda externa do palíndromo: a _ a.'},
+      {form:'a b S b a', rule:'Aplicamos S → bSb no S do meio.', explain:'Agora criamos outra camada simétrica: b _ b.'},
+      {form:'a b ε b a', rule:'Aplicamos S → ε.', explain:'O S do meio desaparece.'},
+      {form:'a b b a', rule:'Resultado final.', explain:'Sobram apenas símbolos terminais. A palavra gerada é abba.'}
+    ];
+    let current = 0;
+    const draw = () => {
+      const step = steps[current];
+      stepText.innerHTML = `<strong>Passo ${current}:</strong> ${step.rule}`;
+      form.innerHTML = step.form.split(' ').map(token => {
+        const classes = ['p2-symbol'];
+        if(token === 'S') classes.push('highlight');
+        if(token === 'ε') classes.push('okhilite');
+        return `<span class="${classes.join(' ')}">${token}</span>`;
+      }).join('');
+      explain.textContent = step.explain;
+      next.disabled = current === steps.length - 1;
+    };
+    next.addEventListener('click', () => { current = Math.min(current + 1, steps.length - 1); draw(); });
+    reset.addEventListener('click', () => { current = 0; draw(); });
+    draw();
+    return card;
+  }
+
+  function renderP2AmbiguousTree(){
+    const card = createP2AnimationCard('Animação conceitual: duas leituras para 4*3+1', 'Clique para alternar a árvore principal');
+    const treeBox = el('div', {class:'derivation-tree p2-tree-box'});
+    const text = el('div', {class:'p2-stepbox'});
+    const toggle = el('button', {type:'button'}, ['Alternar árvore']);
+    card.append(treeBox, toggle, text);
+
+    const steps = data.animations.p2AmbiguousTree.steps;
+    let mode = 0;
+    const draw = () => {
+      const step = steps[mode];
+      renderTree(treeBox, step.tree);
+      text.innerHTML = `<strong>${step.title}:</strong> ${step.text}`;
+    };
+    toggle.addEventListener('click', () => { mode = 1 - mode; draw(); });
+    draw();
+    return card;
+  }
+
+  function renderP2DfaEnds00(){
+    const card = createP2AnimationCard('Animação: AFD para strings terminadas em 00', 'Teste: 100, 1100, 101, 00');
+    const inputSelector = '[data-p2-input="dfa"]';
+    const controls = el('div', {class:'p2-sim-grid'});
+    const panel = el('div', {class:'p2-sim-panel'});
+    const input = el('input', {type:'text', value:'1100', 'data-p2-input':'dfa', 'aria-label':'Entrada do AFD'});
+    const next = el('button', {type:'button'}, ['Próximo símbolo']);
+    const reset = el('button', {type:'button', class:'secondary'}, ['Reiniciar']);
+    const tape = el('div');
+    const status = el('div', {class:'p2-stepbox'});
+    panel.append(el('label', {}, ['Entrada: ', input]), el('div', {class:'p2-control-row'}, [next, reset]), tape, status);
+    const graph = el('div', {class:'graph-box'});
+    controls.append(panel, graph);
+    card.append(controls);
+
+    const automaton = data.animations.p2DfaEnds00.automaton;
+    const transitions = {
+      q0: {0:['q1','q0_q1'], 1:['q0','q0_q0']},
+      q1: {0:['q2','q1_q2'], 1:['q0','q1_q0']},
+      q2: {0:['q2','q2_q2'], 1:['q0','q2_q0']}
+    };
+    let state = {pos:0, q:'q0', done:false, edge:null};
+    const resetState = () => { state = {pos:0, q:'q0', done:false, edge:null}; draw(); };
+    const draw = () => {
+      const value = input.value.trim();
+      renderAutomaton(graph, automaton, {activeStates:[state.q], activeTransitions:state.edge ? [state.edge] : []});
+      renderP2Tape(tape, [...value.split(''), 'fim'], state.pos);
+      status.innerHTML = state.pos >= value.length
+        ? (state.q === 'q2' ? '<strong>Aceita.</strong> A entrada terminou no estado final q2, então termina em 00.' : '<strong>Rejeita.</strong> A entrada acabou fora de q2, então não termina em 00.')
+        : `Estado atual: <strong>${state.q}</strong>. Próximo símbolo: <strong>${value[state.pos] || 'fim'}</strong>.`;
+      next.disabled = state.done;
+    };
+    const step = () => {
+      if(state.done) return;
+      const value = input.value.trim();
+      if(!/^[01]*$/.test(value)){
+        status.innerHTML = '<strong>Erro:</strong> use apenas 0 e 1.';
+        return;
+      }
+      if(state.pos >= value.length){
+        state.done = true;
+        draw();
+        return;
+      }
+      const [nextState, edge] = transitions[state.q][value[state.pos]];
+      state.q = nextState;
+      state.edge = edge;
+      state.pos += 1;
+      draw();
+    };
+    input.addEventListener('input', resetState);
+    next.addEventListener('click', step);
+    reset.addEventListener('click', resetState);
+    card.dataset.inputSelector = inputSelector;
+    resetState();
+    return card;
+  }
+
+  function renderP2PdaAnBn(){
+    const card = createP2AnimationCard('Animação: AP reconhecendo aⁿbⁿ', 'Use aaabbb para aceitar; aabbb para rejeitar');
+    const inputSelector = '[data-p2-input="pda"]';
+    const controls = el('div', {class:'p2-sim-grid p2-sim-grid-stack'});
+    const panel = el('div', {class:'p2-sim-panel'});
+    const input = el('input', {type:'text', value:'aaabbb', 'data-p2-input':'pda', 'aria-label':'Entrada do AP'});
+    const next = el('button', {type:'button'}, ['Próximo passo']);
+    const reset = el('button', {type:'button', class:'secondary'}, ['Reiniciar']);
+    const tape = el('div');
+    const status = el('div', {class:'p2-stepbox'});
+    panel.append(el('label', {}, ['Entrada: ', input]), el('div', {class:'p2-control-row'}, [next, reset]), tape, status);
+    const stackPanel = el('div', {class:'p2-stack-panel'}, [el('strong', {}, ['Pilha'])]);
+    const stack = el('div');
+    stackPanel.append(stack);
+    const graph = el('div', {class:'graph-box'});
+    controls.append(panel, stackPanel, graph);
+    card.append(controls);
+
+    const automaton = data.animations.p2PdaAnBn.automaton;
+    let state;
+    const resetState = () => {
+      state = {q:'q0', pos:0, stack:[], done:false, msg:'Estado inicial q0.', edge:null};
+      draw();
+    };
+    const draw = () => {
+      const value = input.value.trim();
+      renderAutomaton(graph, automaton, {activeStates:[state.q], activeTransitions:state.edge ? [state.edge] : []});
+      renderP2Tape(tape, [...value.split(''), 'fim'], state.pos);
+      renderP2Stack(stack, state.stack);
+      const final = state.done ? (state.q === 'q3' ? '<br><strong class="success-inline">Resultado: aceita.</strong>' : '<br><strong>Resultado: rejeita.</strong>') : '';
+      status.innerHTML = `Estado: <strong>${state.q}</strong>. Posição: <strong>${state.pos}</strong>.<br>${state.msg}${final}`;
+      next.disabled = state.done;
+    };
+    const step = () => {
+      if(state.done) return;
+      const value = input.value.trim();
+      if(!/^[ab]*$/.test(value)){
+        state.msg = 'Erro: use apenas a e b.';
+        state.done = true;
+        draw();
+        return;
+      }
+      const ch = value[state.pos];
+      const top = state.stack[state.stack.length - 1];
+      if(state.q === 'q0'){
+        state.stack.push('$');
+        state.q = 'q1';
+        state.msg = 'ε-transição: empilha $ para marcar a base da pilha.';
+        state.edge = 'q0_q1';
+      } else if(state.q === 'q1'){
+        if(ch === 'a'){
+          state.stack.push('#');
+          state.pos += 1;
+          state.msg = 'Leu a: empilha #. Cada # representa um a lido.';
+          state.edge = 'q1_q1';
+        } else if(ch === 'b' && top === '#'){
+          state.stack.pop();
+          state.pos += 1;
+          state.q = 'q2';
+          state.msg = 'Primeiro b: muda para q2 e desempilha um #.';
+          state.edge = 'q1_q2';
+        } else if(ch === undefined && top === '$'){
+          state.stack.pop();
+          state.q = 'q3';
+          state.done = true;
+          state.msg = 'Entrada vazia ou n=0: desempilha $ e aceita.';
+          state.edge = 'q2_q3';
+        } else {
+          state.msg = 'Rejeita: apareceu símbolo fora da forma a*b* ou a pilha não combina.';
+          state.done = true;
+          state.edge = null;
+        }
+      } else if(state.q === 'q2'){
+        if(ch === 'b' && top === '#'){
+          state.stack.pop();
+          state.pos += 1;
+          state.msg = 'Leu b: desempilha #. Está comparando um b com um a anterior.';
+          state.edge = 'q2_q2';
+        } else if(ch === undefined && top === '$'){
+          state.stack.pop();
+          state.q = 'q3';
+          state.done = true;
+          state.msg = 'Entrada acabou e sobrou só $. Desempilha $ e aceita.';
+          state.edge = 'q2_q3';
+        } else {
+          state.msg = 'Rejeita: quantidade de b não bate com quantidade de a, ou apareceu a depois de b.';
+          state.done = true;
+          state.edge = null;
+        }
+      }
+      draw();
+    };
+    input.addEventListener('input', resetState);
+    next.addEventListener('click', step);
+    reset.addEventListener('click', resetState);
+    card.dataset.inputSelector = inputSelector;
+    resetState();
+    return card;
+  }
+
+  function renderP2PumpingCfl(){
+    const card = createP2AnimationCard('Animação: bombeando v e y', 'Exemplo visual, não é prova formal completa');
+    card.append(el('p', {class:'p2-muted'}, ['String base: aaabbbccc. Vamos imaginar uma divisão em u, v, x, y, z.']));
+    const segments = el('div', {class:'p2-segmentrow'});
+    const controls = el('div', {class:'p2-control-row'});
+    const original = el('button', {type:'button'}, ['i = 1 original']);
+    const remove = el('button', {type:'button'}, ['i = 0 remove v e y']);
+    const duplicate = el('button', {type:'button'}, ['i = 2 duplica v e y']);
+    const output = el('div', {class:'p2-stepbox'});
+    controls.append(original, remove, duplicate);
+    card.append(segments, controls, output);
+
+    const base = {u:'a', v:'aa', x:'bbb', y:'c', z:'cc'};
+    const setPump = i => {
+      const out = base.u + base.v.repeat(i) + base.x + base.y.repeat(i) + base.z;
+      const count = {
+        a:(out.match(/a/g) || []).length,
+        b:(out.match(/b/g) || []).length,
+        c:(out.match(/c/g) || []).length
+      };
+      segments.innerHTML =
+        `<div class="p2-segment">u<br>${base.u}</div>` +
+        `<div class="p2-segment seg-v">v<br>${base.v.repeat(i) || 'ε'}</div>` +
+        `<div class="p2-segment seg-x">x<br>${base.x}</div>` +
+        `<div class="p2-segment seg-y">y<br>${base.y.repeat(i) || 'ε'}</div>` +
+        `<div class="p2-segment">z<br>${base.z}</div>`;
+      const ok = count.a === count.b && count.b === count.c;
+      output.innerHTML = `Com i = <strong>${i}</strong>, a string fica: <span class="formula-inline">${out || 'ε'}</span><br>
+        Contagens: a=${count.a}, b=${count.b}, c=${count.c}.<br>
+        ${ok ? '<strong>As contagens continuam iguais neste exemplo.</strong>' : '<strong>As contagens quebraram.</strong> Logo, essa divisão bombeada não preserva a forma aⁿbⁿcⁿ.'}`;
+    };
+    original.addEventListener('click', () => setPump(1));
+    remove.addEventListener('click', () => setPump(0));
+    duplicate.addEventListener('click', () => setPump(2));
+    setPump(1);
+    return card;
+  }
+
+  function renderP2TmEnds0(){
+    const card = createP2AnimationCard('Animação: MT que aceita strings binárias que terminam em 0', 'Baseada no pseudocódigo da lista de exercícios');
+    const inputSelector = '[data-p2-input="tm"]';
+    const controls = el('div', {class:'p2-sim-grid'});
+    const panel = el('div', {class:'p2-sim-panel'});
+    const input = el('input', {type:'text', value:'1010', 'data-p2-input':'tm', 'aria-label':'Entrada da MT'});
+    const next = el('button', {type:'button'}, ['Próximo passo']);
+    const reset = el('button', {type:'button', class:'secondary'}, ['Reiniciar']);
+    const tape = el('div');
+    const status = el('div', {class:'p2-stepbox'});
+    panel.append(el('label', {}, ['Entrada: ', input]), el('div', {class:'p2-control-row'}, [next, reset]), tape, status);
+    const graph = el('div', {class:'graph-box'});
+    controls.append(panel, graph);
+    card.append(controls);
+
+    const automaton = data.animations.p2TmEnds0.automaton;
+    let state;
+    const resetState = () => {
+      const value = input.value.trim();
+      state = {tape:(value + '_').split(''), head:0, q:'q0', done:false, msg:'Começa em q0, na primeira célula.', edge:null};
+      draw();
+    };
+    const draw = () => {
+      const activeState = state.q;
+      renderAutomaton(graph, automaton, {activeStates:[activeState], activeTransitions:state.edge ? [state.edge] : []});
+      renderP2Tape(tape, state.tape, state.head, {markRead:false});
+      status.innerHTML = `Estado: <strong>${state.q}</strong>. Cabeça na posição <strong>${state.head}</strong>.<br>${state.msg}`;
+      next.disabled = state.done;
+    };
+    const step = () => {
+      if(state.done) return;
+      if(!/^[01]*$/.test(input.value.trim())){
+        state.msg = 'Erro: use apenas 0 e 1.';
+        state.done = true;
+        draw();
+        return;
+      }
+      const sym = state.tape[state.head] || '_';
+      if(state.q === 'q0'){
+        if(sym === '0' || sym === '1'){
+          state.msg = `q0 leu ${sym}: mantém ${sym} e anda para a direita.`;
+          state.edge = 'q0_q0';
+          state.head += 1;
+          if(state.head >= state.tape.length) state.tape.push('_');
+        } else {
+          state.msg = 'q0 leu branco: chegou ao fim. Vai para q1 e volta uma posição.';
+          state.edge = 'q0_q1';
+          state.q = 'q1';
+          state.head = Math.max(0, state.head - 1);
+        }
+      } else if(state.q === 'q1'){
+        if(sym === '0'){
+          state.q = 'qac';
+          state.done = true;
+          state.edge = 'q1_qac';
+          state.msg = 'q1 leu 0: o último símbolo é 0. Aceita.';
+        } else {
+          state.q = 'qrej';
+          state.done = true;
+          state.edge = 'q1_qrej';
+          state.msg = 'q1 não leu 0: a string não termina em 0. Rejeita.';
+        }
+      }
+      draw();
+    };
+    input.addEventListener('input', resetState);
+    next.addEventListener('click', step);
+    reset.addEventListener('click', resetState);
+    card.dataset.inputSelector = inputSelector;
+    resetState();
+    return card;
+  }
+
+  function renderP2TwoTapeCopy(){
+    const card = createP2AnimationCard('Animação: MT de duas fitas copiando a fita 1 para a fita 2', 'Exemplo simples para entender o modelo');
+    const inputSelector = '[data-p2-input="twoTape"]';
+    const input = el('input', {type:'text', value:'10110', 'data-p2-input':'twoTape', 'aria-label':'Entrada da MT de duas fitas'});
+    const next = el('button', {type:'button'}, ['Próximo passo']);
+    const reset = el('button', {type:'button', class:'secondary'}, ['Reiniciar']);
+    const controls = el('div', {class:'p2-control-row'});
+    controls.append(next, reset);
+    const tapeGrid = el('div', {class:'p2-two-grid'});
+    const tape1 = el('div');
+    const tape2 = el('div');
+    tapeGrid.append(el('div', {}, [el('strong', {}, ['Fita 1 - entrada']), tape1]), el('div', {}, [el('strong', {}, ['Fita 2 - rascunho']), tape2]));
+    const status = el('div', {class:'p2-stepbox'});
+    card.append(el('label', {}, ['Entrada: ', input]), controls, tapeGrid, status);
+
+    let state;
+    const resetState = () => {
+      const value = input.value.trim();
+      state = {
+        tape1:(value + '_').split(''),
+        tape2:Array(Math.max(value.length + 1, 6)).fill('_'),
+        h1:0,
+        h2:0,
+        q:'qcopy',
+        done:false,
+        msg:'Começa em qcopy. A fita 1 tem a entrada; a fita 2 está em branco.'
+      };
+      draw();
+    };
+    const draw = () => {
+      renderP2Tape(tape1, state.tape1, state.h1, {markRead:false});
+      renderP2Tape(tape2, state.tape2, state.h2, {markRead:false});
+      status.innerHTML = `Estado: <strong>${state.q}</strong>. Cabeças: fita 1 em <strong>${state.h1}</strong>, fita 2 em <strong>${state.h2}</strong>.<br>${state.msg}`;
+      next.disabled = state.done;
+    };
+    const step = () => {
+      if(state.done) return;
+      if(!/^[01]*$/.test(input.value.trim())){
+        state.msg = 'Erro: use apenas 0 e 1.';
+        state.done = true;
+        draw();
+        return;
+      }
+      const s1 = state.tape1[state.h1] || '_';
+      const s2 = state.tape2[state.h2] || '_';
+      if(state.q === 'qcopy'){
+        if(s1 === '0' || s1 === '1'){
+          state.tape2[state.h2] = s1;
+          state.msg = `δ(qcopy, ${s1}, ${s2}) = (qcopy, ${s1}, ${s1}, D, D). Copiou ${s1} para a fita 2.`;
+          state.h1 += 1;
+          state.h2 += 1;
+          if(state.h1 >= state.tape1.length) state.tape1.push('_');
+          if(state.h2 >= state.tape2.length) state.tape2.push('_');
+        } else {
+          state.q = 'qac';
+          state.done = true;
+          state.msg = 'Leu branco na fita 1: terminou a cópia e aceitou.';
+        }
+      }
+      draw();
+    };
+    input.addEventListener('input', resetState);
+    next.addEventListener('click', step);
+    reset.addEventListener('click', resetState);
+    card.dataset.inputSelector = inputSelector;
+    resetState();
+    return card;
+  }
+
+  function renderP2InteractiveAnimation(type){
+    const renderers = {
+      cfgDerivation: renderP2CfgDerivation,
+      ambiguousTree: renderP2AmbiguousTree,
+      dfaEnds00: renderP2DfaEnds00,
+      pdaAnBn: renderP2PdaAnBn,
+      pumpingCfl: renderP2PumpingCfl,
+      tmEnds0: renderP2TmEnds0,
+      twoTapeCopy: renderP2TwoTapeCopy
+    };
+    return renderers[type] ? renderers[type]() : el('div');
+  }
+
   function renderP2Section(section){
     const card = el('article', {class:'content-card p2-section', id:`p2-${section.id}`});
     const prefix = basePrefix();
@@ -755,6 +1197,11 @@
         checklist.append(label);
       });
       card.append(checklist);
+    }
+    if(section.interactiveAnimation){
+      const visualWrap = el('div', {class:'visual-grid p2-visuals'});
+      visualWrap.append(renderP2InteractiveAnimation(section.interactiveAnimation));
+      card.append(visualWrap);
     }
     if(section.animationIds && section.animationIds.length){
       const visualWrap = el('div', {class:'visual-grid p2-visuals'});

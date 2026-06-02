@@ -3036,7 +3036,7 @@ S = S</pre>
         title: "2. Derivação e linguagem gerada L(G)",
         navLabel: "2. Derivação",
         source: "Aula 13, slides 5-12; Aula 15, slides 7-18; Aula 16, slides 2-7; Exercicios-P2 Q1.",
-        animationIds: ["p2CfgDerivation"],
+        interactiveAnimation: "cfgDerivation",
         html: `
           <p><strong>Derivar</strong> é aplicar regras passo a passo, começando pelo símbolo inicial, até sobrar apenas símbolos terminais. A <strong>linguagem gerada</strong>, escrita como L(G), é o conjunto de todas as strings que a gramática consegue produzir.</p>
           <h3>Exemplos de strings deriváveis</h3>
@@ -3061,7 +3061,7 @@ S = S</pre>
         title: "3. Árvore de derivação sintática e ambiguidade",
         navLabel: "3. Árvores",
         source: "Aula 16, slides 2-28; Aula 15, slides 18-21.",
-        animationIds: ["p2AmbiguousTree"],
+        interactiveAnimation: "ambiguousTree",
         html: `
           <p>A <strong>árvore de derivação</strong> representa graficamente uma derivação. A raiz é o símbolo inicial, os nós internos são variáveis, e as folhas formam a string final.</p>
           <div class="p2-mini-grid">
@@ -3132,7 +3132,7 @@ Mas L1 ∩ L2 = {a^n b^n c^n : n >= 0}, que não é LLC.</pre>
         title: "6. AFD: linguagem que termina em 00",
         navLabel: "6. AFD termina 00",
         source: "Aula 27, slide 29; Exercicios-P2 Q2.",
-        animationIds: ["p2DfaEnds00"],
+        interactiveAnimation: "dfaEnds00",
         html: `
           <p>Essa linguagem aparece diretamente nos exercícios da P2.</p>
           <div class="formula">L = { x ∈ {0,1}* : x termina em 00 }</div>
@@ -3145,7 +3145,7 @@ Mas L1 ∩ L2 = {a^n b^n c^n : n >= 0}, que não é LLC.</pre>
         title: "7. Autômato com Pilha (AP)",
         navLabel: "7. AP",
         source: "Aula 17, slides 26-50; Aula 18, slides 16-29; Aula 27, slides 30-34.",
-        animationIds: ["p2PdaAnBn"],
+        interactiveAnimation: "pdaAnBn",
         html: `
           <p>Um <strong>Autômato com Pilha</strong> é como um AFND com memória extra. A pilha funciona em LIFO: o último símbolo empilhado é o primeiro a sair.</p>
           <div class="p2-mini-grid three">
@@ -3179,7 +3179,7 @@ Mas L1 ∩ L2 = {a^n b^n c^n : n >= 0}, que não é LLC.</pre>
         title: "9. Linguagens não livres-de-contexto e Lema do Bombeamento para LLCs",
         navLabel: "9. Não LLC",
         source: "Aula 18, slides 31-35; Aula 19, slides 5-9; Aula 21, slides 6-32; Aula 22, slides 2-12.",
-        animationIds: ["p2PumpingCfl"],
+        interactiveAnimation: "pumpingCfl",
         html: `
           <p>O exemplo mais importante é:</p>
           <div class="formula">L = {a^n b^n c^n : n >= 0}</div>
@@ -3247,7 +3247,7 @@ Se a entrada representa 8, não está na linguagem.</pre>
         title: "12. Máquina de Turing (MT)",
         navLabel: "12. MT",
         source: "Aula 22, slides 54-59; Aula 23, slides 19-41; Aula 24, slides 19-41; Aula 26, slides 2-10; Aula 27, slides 35-43; Exercicios-P2 Q4.",
-        animationIds: ["p2TmEnds0"],
+        interactiveAnimation: "tmEnds0",
         html: `
           <p>A Máquina de Turing é um modelo mais poderoso que os autômatos anteriores. Ela tem fita ilimitada, uma cabeça que lê/escreve e um controle de estados.</p>
           <div class="formula">M = (Q, Σ, Γ, δ, s, q<sub>aceita</sub>, q<sub>rejeita</sub>)</div>
@@ -3327,7 +3327,7 @@ qrejeita = qrej
         title: "15. Máquina de Turing com duas fitas",
         navLabel: "15. Duas fitas",
         source: "Aula 26, slides 24-28, especialmente MT com múltiplas fitas.",
-        animationIds: ["p2TwoTapeCopy"],
+        interactiveAnimation: "twoTapeCopy",
         html: `
           <p>A MT padrão tem uma fita. Uma MT com múltiplas fitas tem k fitas e k cabeças. A cada passo, a transição observa todos os símbolos sob as cabeças, escreve em todas as fitas e move cada cabeça.</p>
           <div class="formula">δ(q, σ1, σ2) = (q', τ1, τ2, movimento1, movimento2)</div>
