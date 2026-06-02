@@ -3342,10 +3342,61 @@ qrejeita = qrej
         `
       },
       {
+        id: "atividade-26-palindromos",
+        topicSlug: "maquina-turing",
+        title: "16. Atividade 2.6: palíndromos com MT de duas fitas",
+        navLabel: "16. Atividade 2.6",
+        source: "Atividade 2.6, entrega até 02/06.",
+        interactiveAnimation: "twoTapePalindrome",
+        html: `
+          <p><strong>Enunciado:</strong> escreva um pseudocódigo descrevendo uma Máquina de Turing com duas fitas que decida a linguagem dos palíndromos sobre Σ = {0,1}.</p>
+          <div class="formula">L = { x ∈ {0,1}<sup>*</sup> : x<sup>R</sup> = x }</div>
+          <p>A <strong>Fita 1</strong> recebe o input. A <strong>Fita 2</strong> começa em branco e será usada para guardar uma cópia delimitada por <code>#</code>. Depois a máquina compara a Fita 1 da esquerda para a direita com a Fita 2 da direita para a esquerda.</p>
+          <h3>Resolução por pseudocódigo</h3>
+          <pre>Entrada:
+  Fita 1: x seguido de branco _
+  Fita 2: toda em branco _
+
+Alfabeto de trabalho:
+  Γ = {0, 1, #, _}
+
+1. Na Fita 2, escreva # na célula atual.
+2. Mova a cabeça da Fita 2 uma célula para a direita.
+
+3. Enquanto a cabeça da Fita 1 lê 0 ou 1:
+   a. Seja a o símbolo lido na Fita 1.
+   b. Na Fita 2, escreva a na célula atual.
+   c. Mova a cabeça da Fita 1 uma célula para a direita.
+   d. Mova a cabeça da Fita 2 uma célula para a direita.
+
+4. Quando a cabeça da Fita 1 ler branco _:
+   a. Na Fita 2, escreva # na célula atual.
+
+5. Reposicione as cabeças para comparar:
+   a. Mova a cabeça da Fita 1 para a esquerda, célula por célula,
+      até voltar ao primeiro símbolo do input.
+   b. Mova a cabeça da Fita 2 uma célula para a esquerda, saindo do # final,
+      e ficando no último símbolo copiado.
+   c. Se x = ε, a cabeça da Fita 2 fica no # inicial.
+
+6. Enquanto a cabeça da Fita 1 lê 0 ou 1:
+   a. Compare o símbolo da Fita 1 com o símbolo da Fita 2.
+   b. Se forem diferentes, rejeite.
+   c. Se forem iguais, mantenha os dois símbolos escritos como estão.
+   d. Mova a cabeça da Fita 1 uma célula para a direita.
+   e. Mova a cabeça da Fita 2 uma célula para a esquerda.
+
+7. Quando a cabeça da Fita 1 ler branco _:
+   a. Se a cabeça da Fita 2 lê #, aceite.
+   b. Caso contrário, rejeite.</pre>
+          <div class="p2-note p2-success"><strong>Por que decide?</strong> A cópia na Fita 2 fica na forma #x#. Comparar a Fita 1 indo para a direita com a Fita 2 indo para a esquerda verifica se cada símbolo de x bate com seu correspondente em x<sup>R</sup>. A máquina sempre para: ou encontra diferença e rejeita, ou termina a comparação e aceita.</div>
+        `
+      },
+      {
         id: "checklist",
         topicSlug: "decidibilidade",
-        title: "16. Checklist final para a Prova 2",
-        navLabel: "16. Checklist",
+        title: "17. Checklist final para a Prova 2",
+        navLabel: "17. Checklist",
         source: "Lista Exercicios-P2 e revisão geral da P2.",
         checklist: [
           "Sei explicar G = (V, Σ, R, S).",
@@ -3368,7 +3419,8 @@ qrejeita = qrej
           "Sei a tupla da MT: Q, Σ, Γ, δ, s, qaceita, qrejeita.",
           "Sei simular uma MT simples por pseudocódigo.",
           "Sei diferenciar Turing-reconhecível e Turing-decidível.",
-          "Sei explicar MT com duas fitas."
+          "Sei explicar MT com duas fitas.",
+          "Sei resolver palíndromos com uma MT de duas fitas."
         ],
         html: `
           <h3>Ordem de revisão recomendada</h3>

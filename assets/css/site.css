@@ -874,6 +874,7 @@ pre{
 .p2-visuals{margin-top:14px}
 .p2-anim{
   display:grid;
+  grid-template-columns:minmax(0,1fr);
   gap:12px;
 }
 .p2-anim-title{
@@ -1187,6 +1188,7 @@ pre{
   .topbar{position:relative;align-items:flex-start}
   .visual-card,.content-card,.graph-box,.automaton-box{min-width:0}
   .graph-box svg,.automaton-box svg{min-width:0;min-height:260px}
+  .p2-anim .graph-box svg{min-height:0}
   .tape-display{margin:12px 0}
   .stack-display{max-width:100%;flex-direction:row;flex-wrap:wrap}
   .sim-controls{flex-wrap:wrap}

@@ -1183,6 +1183,150 @@
     return card;
   }
 
+  function renderP2TwoTapePalindrome(){
+    const card = createP2AnimationCard('Animação: Atividade 2.6 - palíndromos com duas fitas', 'Compare 0110, 10101, 100 ou a string vazia');
+    const inputSelector = '[data-p2-input="twoTapePalindrome"]';
+    const automaton = {
+      states: [
+        {id:'qmark', x:110, y:150, initial:true},
+        {id:'qcopy', x:290, y:150},
+        {id:'qrew', x:470, y:150},
+        {id:'qcmp', x:470, y:315},
+        {id:'qac', x:290, y:315, accepting:true},
+        {id:'qrej', x:110, y:315}
+      ],
+      transitions: [
+        {id:'mark_start', from:'qmark', to:'qcopy', label:'marca #'},
+        {id:'copy', from:'qcopy', to:'qcopy', label:'copia 0/1'},
+        {id:'finish_copy', from:'qcopy', to:'qrew', label:'fim: escreve #'},
+        {id:'rewind', from:'qrew', to:'qcmp', label:'reposiciona'},
+        {id:'match', from:'qcmp', to:'qcmp', label:'iguais'},
+        {id:'accept', from:'qcmp', to:'qac', label:'fim + #'},
+        {id:'mismatch', from:'qcmp', to:'qrej', label:'diferem'},
+        {id:'invalid', from:'qmark', to:'qrej', label:'inválida'}
+      ]
+    };
+    const input = el('input', {type:'text', value:'0110', 'data-p2-input':'twoTapePalindrome', 'aria-label':'Entrada da MT de duas fitas para palíndromos'});
+    const next = el('button', {type:'button'}, ['Próximo passo']);
+    const reset = el('button', {type:'button', class:'secondary'}, ['Reiniciar']);
+    const controls = el('div', {class:'p2-control-row'}, [next, reset]);
+    const graph = el('div', {class:'graph-box'});
+    const tapeGrid = el('div', {class:'p2-two-grid'});
+    const tape1 = el('div');
+    const tape2 = el('div');
+    tapeGrid.append(el('div', {}, [el('strong', {}, ['Fita 1 - input']), tape1]), el('div', {}, [el('strong', {}, ['Fita 2 - copia delimitada']), tape2]));
+    const status = el('div', {class:'p2-stepbox'});
+    card.append(el('label', {}, ['Entrada: ', input]), controls, graph, tapeGrid, status);
+
+    let state;
+    const ensureTape2 = index => {
+      while(index >= state.tape2.length) state.tape2.push('_');
+    };
+    const resetState = () => {
+      const value = input.value.trim();
+      state = {
+        inputLength:value.length,
+        tape1:(value + '_').split(''),
+        tape2:Array(Math.max(value.length + 3, 8)).fill('_'),
+        h1:0,
+        h2:0,
+        q:'qmark',
+        edge:null,
+        done:false,
+        msg:'Começa em qmark. A Fita 1 contém o input; a Fita 2 está em branco.'
+      };
+      draw();
+    };
+    const draw = () => {
+      renderAutomaton(graph, automaton, {
+        activeStates:[state.q],
+        activeTransitions:state.edge ? [state.edge] : []
+      });
+      renderP2Tape(tape1, state.tape1, state.h1, {markRead:false});
+      renderP2Tape(tape2, state.tape2, state.h2, {markRead:false});
+      const final = state.done ? (state.q === 'qac' ? '<br><strong class="success-inline">Resultado: aceita.</strong>' : '<br><strong>Resultado: rejeita.</strong>') : '';
+      status.innerHTML = `Estado: <strong>${state.q}</strong>. Cabeças: Fita 1 em <strong>${state.h1}</strong>, Fita 2 em <strong>${state.h2}</strong>.<br>${state.msg}${final}`;
+      next.disabled = state.done;
+    };
+    const reject = (edge, msg) => {
+      state.q = 'qrej';
+      state.edge = edge;
+      state.done = true;
+      state.msg = msg;
+    };
+    const step = () => {
+      if(state.done) return;
+      const value = input.value.trim();
+      if(!/^[01]*$/.test(value)){
+        reject('invalid', 'Erro: o alfabeto da atividade é Σ = {0,1}. Use apenas 0 e 1.');
+        draw();
+        return;
+      }
+      if(state.q === 'qmark'){
+        state.tape2[state.h2] = '#';
+        state.h2 += 1;
+        state.edge = 'mark_start';
+        state.q = 'qcopy';
+        state.msg = 'Na Fita 2, escreveu # como marcador de início e moveu a cabeça da Fita 2 para a direita.';
+      } else if(state.q === 'qcopy'){
+        const s1 = state.tape1[state.h1] || '_';
+        if(s1 === '0' || s1 === '1'){
+          ensureTape2(state.h2);
+          state.tape2[state.h2] = s1;
+          state.edge = 'copy';
+          state.msg = `Leu ${s1} na Fita 1 e escreveu ${s1} na Fita 2; depois moveu as duas cabeças para a direita.`;
+          state.h1 += 1;
+          state.h2 += 1;
+          if(state.h1 >= state.tape1.length) state.tape1.push('_');
+          ensureTape2(state.h2);
+        } else {
+          ensureTape2(state.h2);
+          state.tape2[state.h2] = '#';
+          state.edge = 'finish_copy';
+          state.q = 'qrew';
+          state.msg = 'A Fita 1 leu branco: fim do input. Na Fita 2, escreveu # como marcador final.';
+        }
+      } else if(state.q === 'qrew'){
+        state.h1 = 0;
+        state.h2 = state.inputLength > 0 ? state.inputLength : 0;
+        state.edge = 'rewind';
+        state.q = 'qcmp';
+        state.msg = state.inputLength > 0
+          ? 'Reposicionou: Fita 1 no primeiro símbolo; Fita 2 no último símbolo copiado.'
+          : 'Entrada vazia: Fita 1 está no branco e Fita 2 no # inicial.';
+      } else if(state.q === 'qcmp'){
+        if(state.h1 >= state.inputLength){
+          if((state.tape2[state.h2] || '_') === '#'){
+            state.q = 'qac';
+            state.edge = 'accept';
+            state.done = true;
+            state.msg = 'A Fita 1 chegou ao branco e a Fita 2 chegou ao # inicial. Todos os pares bateram.';
+          } else {
+            reject('mismatch', 'A Fita 1 terminou, mas a Fita 2 não está no marcador #. Rejeita.');
+          }
+        } else {
+          const s1 = state.tape1[state.h1] || '_';
+          const s2 = state.tape2[state.h2] || '_';
+          if(s1 === s2){
+            state.edge = 'match';
+            state.msg = `Comparou Fita 1 = ${s1} com Fita 2 = ${s2}. São iguais; Fita 1 anda para a direita e Fita 2 para a esquerda.`;
+            state.h1 += 1;
+            state.h2 = Math.max(0, state.h2 - 1);
+          } else {
+            reject('mismatch', `Comparou Fita 1 = ${s1} com Fita 2 = ${s2}. Como diferem, não é palíndromo.`);
+          }
+        }
+      }
+      draw();
+    };
+    input.addEventListener('input', resetState);
+    next.addEventListener('click', step);
+    reset.addEventListener('click', resetState);
+    card.dataset.inputSelector = inputSelector;
+    resetState();
+    return card;
+  }
+
   function renderP2InteractiveAnimation(type){
     const renderers = {
       cfgDerivation: renderP2CfgDerivation,
@@ -1191,7 +1335,8 @@
       pdaAnBn: renderP2PdaAnBn,
       pumpingCfl: renderP2PumpingCfl,
       tmEnds0: renderP2TmEnds0,
-      twoTapeCopy: renderP2TwoTapeCopy
+      twoTapeCopy: renderP2TwoTapeCopy,
+      twoTapePalindrome: renderP2TwoTapePalindrome
     };
     return renderers[type] ? renderers[type]() : el('div');
   }
@@ -1263,7 +1408,7 @@
     overview.append(el('h2', {html:guide.title}));
     overview.append(el('p', {html:guide.description}));
     const pillRow = el('div', {class:'p2-pillrow'});
-    ['GLC', 'Derivação', 'Árvore sintática', 'AFD', 'AP', 'Lema do Bombeamento', 'ALL', 'MT', 'MT com duas fitas'].forEach(label => {
+    ['GLC', 'Derivação', 'Árvore sintática', 'AFD', 'AP', 'Lema do Bombeamento', 'ALL', 'MT', 'MT com duas fitas', 'Palíndromos'].forEach(label => {
       pillRow.append(el('span', {class:'tag'}, [label]));
     });
     overview.append(pillRow);
