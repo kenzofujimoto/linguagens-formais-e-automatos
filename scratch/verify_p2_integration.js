@@ -38,13 +38,13 @@ const expectedSections = [
 ];
 
 const expectedAnimations = [
-  "p2CfgDerivation",
-  "p2AmbiguousTree",
-  "p2DfaEnds00",
-  "p2PdaAnBn",
-  "p2PumpingCfl",
-  "p2TmEnds0",
-  "p2TwoTapeCopy",
+  ["derivacao", "cfgDerivation"],
+  ["arvore", "ambiguousTree"],
+  ["afd", "dfaEnds00"],
+  ["ap", "pdaAnBn"],
+  ["nao-llc", "pumpingCfl"],
+  ["mt", "tmEnds0"],
+  ["duas-fitas", "twoTapeCopy"],
 ];
 
 assert.ok(data.p2Guide, "LFA_SITE_DATA.p2Guide should exist");
@@ -61,17 +61,34 @@ for (const section of data.p2Guide.sections) {
   assert.ok(section.html || section.checklist, `${section.id} should have renderable content`);
 }
 
-for (const animationId of expectedAnimations) {
-  assert.ok(data.animations[animationId], `${animationId} should be defined`);
+for (const [sectionId, animationType] of expectedAnimations) {
+  const section = data.p2Guide.sections.find((item) => item.id === sectionId);
+  assert.equal(
+    section?.interactiveAnimation,
+    animationType,
+    `${sectionId} should render an interactive P2 animation`,
+  );
   assert.ok(
-    data.animations[animationId].steps?.length > 0,
-    `${animationId} should have step-by-step animation data`,
+    !section.animationIds,
+    `${sectionId} should not use the generic static animation renderer`,
   );
 }
 
 const siteJs = fs.readFileSync(sitePath, "utf8");
 assert.match(siteJs, /function renderP2Guide\(/);
 assert.match(siteJs, /function renderP2Section\(/);
+assert.match(siteJs, /function renderP2InteractiveAnimation\(/);
+assert.match(siteJs, /function renderP2CfgDerivation\(/);
+assert.match(siteJs, /function renderP2AmbiguousTree\(/);
+assert.match(siteJs, /function renderP2DfaEnds00\(/);
+assert.match(siteJs, /function renderP2PdaAnBn\(/);
+assert.match(siteJs, /function renderP2PumpingCfl\(/);
+assert.match(siteJs, /function renderP2TmEnds0\(/);
+assert.match(siteJs, /function renderP2TwoTapeCopy\(/);
+assert.match(siteJs, /data-p2-input="dfa"/);
+assert.match(siteJs, /data-p2-input="pda"/);
+assert.match(siteJs, /data-p2-input="tm"/);
+assert.match(siteJs, /data-p2-input="twoTape"/);
 
 const p2Html = fs.readFileSync(p2PagePath, "utf8");
 assert.match(p2Html, /data-view="p2"/);
