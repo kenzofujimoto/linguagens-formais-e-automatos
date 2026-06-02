@@ -1098,17 +1098,28 @@
   function renderP2TwoTapeCopy(){
     const card = createP2AnimationCard('Animação: MT de duas fitas copiando a fita 1 para a fita 2', 'Exemplo simples para entender o modelo');
     const inputSelector = '[data-p2-input="twoTape"]';
+    const automaton = {
+      states: [
+        {id:'qcopy', x:150, y:160, initial:true},
+        {id:'qac', x:500, y:160, accepting:true}
+      ],
+      transitions: [
+        {id:'copy_loop', from:'qcopy', to:'qcopy', label:'0/_→0/0,D/D; 1/_→1/1,D/D'},
+        {id:'accept_blank', from:'qcopy', to:'qac', label:'_/_→_/_,D/D'}
+      ]
+    };
     const input = el('input', {type:'text', value:'10110', 'data-p2-input':'twoTape', 'aria-label':'Entrada da MT de duas fitas'});
     const next = el('button', {type:'button'}, ['Próximo passo']);
     const reset = el('button', {type:'button', class:'secondary'}, ['Reiniciar']);
     const controls = el('div', {class:'p2-control-row'});
     controls.append(next, reset);
+    const graph = el('div', {class:'graph-box'});
     const tapeGrid = el('div', {class:'p2-two-grid'});
     const tape1 = el('div');
     const tape2 = el('div');
     tapeGrid.append(el('div', {}, [el('strong', {}, ['Fita 1 - entrada']), tape1]), el('div', {}, [el('strong', {}, ['Fita 2 - rascunho']), tape2]));
     const status = el('div', {class:'p2-stepbox'});
-    card.append(el('label', {}, ['Entrada: ', input]), controls, tapeGrid, status);
+    card.append(el('label', {}, ['Entrada: ', input]), controls, graph, tapeGrid, status);
 
     let state;
     const resetState = () => {
@@ -1119,12 +1130,17 @@
         h1:0,
         h2:0,
         q:'qcopy',
+        edge:null,
         done:false,
         msg:'Começa em qcopy. A fita 1 tem a entrada; a fita 2 está em branco.'
       };
       draw();
     };
     const draw = () => {
+      renderAutomaton(graph, automaton, {
+        activeStates: [state.q],
+        activeTransitions: state.edge ? [state.edge] : []
+      });
       renderP2Tape(tape1, state.tape1, state.h1, {markRead:false});
       renderP2Tape(tape2, state.tape2, state.h2, {markRead:false});
       status.innerHTML = `Estado: <strong>${state.q}</strong>. Cabeças: fita 1 em <strong>${state.h1}</strong>, fita 2 em <strong>${state.h2}</strong>.<br>${state.msg}`;
@@ -1134,6 +1150,7 @@
       if(state.done) return;
       if(!/^[01]*$/.test(input.value.trim())){
         state.msg = 'Erro: use apenas 0 e 1.';
+        state.edge = null;
         state.done = true;
         draw();
         return;
@@ -1143,6 +1160,7 @@
       if(state.q === 'qcopy'){
         if(s1 === '0' || s1 === '1'){
           state.tape2[state.h2] = s1;
+          state.edge = 'copy_loop';
           state.msg = `δ(qcopy, ${s1}, ${s2}) = (qcopy, ${s1}, ${s1}, D, D). Copiou ${s1} para a fita 2.`;
           state.h1 += 1;
           state.h2 += 1;
@@ -1150,6 +1168,7 @@
           if(state.h2 >= state.tape2.length) state.tape2.push('_');
         } else {
           state.q = 'qac';
+          state.edge = 'accept_blank';
           state.done = true;
           state.msg = 'Leu branco na fita 1: terminou a cópia e aceitou.';
         }
